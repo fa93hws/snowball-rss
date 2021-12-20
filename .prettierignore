@@ -1,0 +1,10 @@
+node_modules
+coverage
+target
+.gitattributes
+*.snap
+.eslintignore
+.prettierignore
+public
+*.svg
+*.ejs
