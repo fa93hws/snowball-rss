@@ -2,9 +2,6 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
   },
   settings: {
     react: {
@@ -14,13 +11,11 @@ module.exports = {
   plugins: ['@typescript-eslint', 'babel', 'jest'],
   env: {
     node: true,
-    browser: true,
   },
   extends: [
     'eslint-config-prettier',
     'plugin:@typescript-eslint/recommended',
     'plugin:jest/recommended',
-    'plugin:jsx-a11y/recommended',
     'plugin:react/recommended',
   ],
   rules: {
@@ -35,15 +30,5 @@ module.exports = {
     'no-console': 'error',
 
     'jest/no-test-callback': 'off',
-
-    'react/display-name': 'off',
   },
-  overrides: [
-    {
-      files: ['tools/**/*.ts'],
-      rules: {
-        'no-console': 'off',
-      },
-    },
-  ],
 };
