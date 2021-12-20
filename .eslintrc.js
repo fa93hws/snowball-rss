@@ -3,11 +3,6 @@ module.exports = {
   parserOptions: {
     sourceType: 'module',
   },
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
   plugins: ['@typescript-eslint', 'babel', 'jest'],
   env: {
     node: true,
@@ -16,7 +11,6 @@ module.exports = {
     'eslint-config-prettier',
     'plugin:@typescript-eslint/recommended',
     'plugin:jest/recommended',
-    'plugin:react/recommended',
   ],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
