@@ -16,6 +16,8 @@
     "dotenv": "^10.0.0",
     "nodemailer": "^6.7.2",
     "rsshub": "^1.0.0-master.b5be05b",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4",
     "yargs": "^17.3.0"
   },
   "devDependencies": {
@@ -30,8 +32,6 @@
     "eslint-plugin-jest": "^25.3.0",
     "jest": "^27.4.5",
     "prettier": "^2.5.1",
-    "ts-jest": "^27.1.2",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.5.4"
+    "ts-jest": "^27.1.2"
   }
 }
