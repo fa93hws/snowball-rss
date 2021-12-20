@@ -11,14 +11,7 @@ module.exports = {
       version: 'detect',
     },
   },
-  plugins: [
-    '@typescript-eslint',
-    'babel',
-    'jest',
-    'react-hooks',
-    'jsx-a11y',
-    'jest',
-  ],
+  plugins: ['@typescript-eslint', 'babel', 'jest'],
   env: {
     node: true,
     browser: true,
