@@ -104,16 +104,20 @@ async function handler(args: CliArgs) {
       time: message.updateTime,
       posts: message.posts.map((p) => p.title.substring(0, 18)),
     });
-    const mailsToSend = message.posts
-      .filter(
-        (post) =>
-          globalMutable.lastUpdateTime != null &&
-          post.publishedTime > globalMutable.lastUpdateTime,
-      )
-      .map((post) => post.toMail(subscribers));
+    const mailsToSend = await Promise.all(
+      message.posts
+        .filter(
+          (post) =>
+            globalMutable.lastUpdateTime != null &&
+            post.publishedTime > globalMutable.lastUpdateTime,
+        )
+        .map((post) => post.toMail(subscribers, logger)),
+    );
     const sendResult = await Promise.all(
       mailsToSend.map((mail) => mailService.send(mail)),
     );
+    // no logging for attachments
+    mailsToSend.forEach((mail) => delete mail.attachments);
     sendResult.forEach((result, idx) => {
       if (!result.isOk) {
         logger.error('failed to send mail, mail content:');

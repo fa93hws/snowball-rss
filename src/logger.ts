@@ -1,6 +1,24 @@
 import * as winston from 'winston';
 import type { transport as Transport } from 'winston';
 
+export interface ILogger {
+  info(message: any): void;
+  error(message: any): void;
+  warn(message: any): void;
+  verbose(message: any): void;
+  debug(message: any): void;
+}
+
+/* eslint-disable no-console */
+export const fakeLogger: ILogger = {
+  info: (message) => console.log(message),
+  error: (message) => console.error(message),
+  warn: (message) => console.warn(message),
+  verbose: (message) => console.log(message),
+  debug: (message) => console.log(message),
+};
+/* eslint-enable no-console */
+
 export class Logger {
   private readonly logger: winston.Logger;
 

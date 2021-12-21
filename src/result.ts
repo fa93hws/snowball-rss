@@ -23,7 +23,7 @@ export namespace Result {
     };
   }
 
-  export function unwrap<T>(result: Result<T, Error | string>): T {
+  export function unwrap<T>(result: Result<T, any>): T {
     if (result.isOk) {
       return result.value;
     }
