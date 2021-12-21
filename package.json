@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
     "nodemailer": "^6.7.2",
     "rsshub": "^1.0.0-master.b5be05b",

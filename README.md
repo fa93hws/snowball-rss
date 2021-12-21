@@ -34,6 +34,10 @@
 foo@gmail.com, bar@hotmail.com, foobar@126.com
 ```
 
+### XUEQIU_ID
+
+关注的用户的 ID，可以从雪球用户的个人页面的网址中取得。比如 https://xueqiu.com/u/1334706236 是 `1334706236`
+
 ## 运行程序
 
 `node index.js` 即可。也可提供一些命令行参数
