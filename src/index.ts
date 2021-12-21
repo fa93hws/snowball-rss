@@ -77,13 +77,12 @@ async function handler(args: CliArgs) {
     }
   }
 
-  async function work() {
+  async function work(): Promise<boolean> {
     logger.info('start fetching');
     const fetchResult = await fetch();
     if (!fetchResult.isOk) {
       process.stderr.write(fetchResult.error + EOL);
       if (fetchResult.error.kind === 'parse') {
-        globalMutable.timer && clearInterval(globalMutable.timer);
         logger.error('parsing error:');
         logger.error(fetchResult.error.message);
         await mailService.send({
@@ -91,11 +90,11 @@ async function handler(args: CliArgs) {
           subject: 'xueqiu-rss is down due to parsing error',
           text: fetchResult.error.message,
         });
-        return;
+        return false;
       }
       logger.error('fetch failed');
       logger.error(fetchResult.error.message);
-      return;
+      return true;
     }
 
     logger.info('fetch success');
@@ -132,14 +131,26 @@ async function handler(args: CliArgs) {
       logger.info('nothing to send');
     }
     globalMutable.lastUpdateTime = message.updateTime;
+    return true;
   }
-  work();
-  globalMutable.timer = setInterval(work, args.intervalSecond * 1000);
+
+  async function scheduleWork() {
+    const canContinue = await work();
+    if (canContinue) {
+      logger.debug(
+        `can continue, next run after ${args.intervalSecond} seconds`,
+      );
+      setTimeout(scheduleWork, args.intervalSecond * 1000);
+    } else {
+      logger.error('can not continue, exit');
+    }
+  }
+  await scheduleWork();
 }
 
 export function main() {
   yargs
-    .command('$0', 'start schdule fetching', {
+    .command('$0', 'start schedule fetching', {
       builder: (): yargs.Argv<CliArgs> =>
         yargs
           .option('sendTestEmail', {
