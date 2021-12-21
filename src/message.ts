@@ -1,6 +1,7 @@
 import { Result } from './result';
 import type { Mail } from './mailer';
 import { EOL } from 'os';
+import { Sanitize } from './sanitize';
 
 export class Post {
   private constructor(
@@ -44,7 +45,12 @@ export class Post {
         `invalid raw post, expect pubDate to be valid date, got ${raw.pubDate}`,
       );
     }
-    const post = new Post(raw.title, raw.description, pubDate, raw.link);
+    const post = new Post(
+      raw.title,
+      Sanitize.html(raw.description),
+      pubDate,
+      raw.link,
+    );
     return Result.ok(post);
   }
 
