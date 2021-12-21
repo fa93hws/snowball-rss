@@ -3,10 +3,10 @@ import { EOL } from 'os';
 import { Message } from './message';
 import { GlobalMutable } from './global';
 import { Result } from './result';
-import debug from 'debug';
 import { config } from './config';
 import { MailService } from './mailer';
 import * as yargs from 'yargs';
+import { Logger } from './logger';
 
 type FetchError = {
   kind: 'parse' | 'network';
@@ -40,38 +40,20 @@ function fetch(): Promise<Result.Result<Message, FetchError>> {
   });
 }
 
-function createLogger(verbose: boolean) {
-  const logger = debug('snwoball-rss');
-  const log = logger.extend('info');
-  log.enabled = true;
-  const error = logger.extend('error');
-  error.enabled = true;
-  const warn = logger.extend('warn');
-  warn.enabled = true;
-  const logVerbose = logger.extend('verbose');
-  logVerbose.enabled = verbose;
-  return {
-    log,
-    error,
-    warn,
-    verbose: logVerbose,
-  };
-}
-
 type CliArgs = {
-  verbose: boolean;
   sendTestEmail: boolean;
   intervalSecond: number;
 };
 
 async function handler(args: CliArgs) {
-  const { log, warn, error, verbose } = createLogger(args.verbose);
+  const logger = new Logger();
   const globalMutable = new GlobalMutable();
+  const subscribers = config.mailer.subscriber.join(', ');
   RSSHub.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
   });
-  log('logging into email service');
+  logger.info('logging into email service');
   const mailService = new MailService({
     service: config.mailer.service,
     user: config.mailer.sender.user,
@@ -79,28 +61,31 @@ async function handler(args: CliArgs) {
   });
 
   if (args.sendTestEmail) {
-    log('sending dummy email to ensure auth success');
+    logger.info('sending dummy email to ensure auth success');
     const res = await mailService.send({
       to: config.mailer.adminEmail,
       subject: 'testing email service',
       text: 'This email may go to junk mail, remember to have a check there as well.',
     });
     if (!res.isOk) {
-      error(res.error);
+      logger.error('failed to send test email, error:');
+      logger.error(res.error);
       return;
     } else {
-      log(res.value);
+      logger.info('managed to send email, reply from server:');
+      logger.info(res.value);
     }
   }
 
   async function work() {
-    log(`start fetching @${new Date()}`);
+    logger.info('start fetching');
     const fetchResult = await fetch();
     if (!fetchResult.isOk) {
       process.stderr.write(fetchResult.error + EOL);
       if (fetchResult.error.kind === 'parse') {
         globalMutable.timer && clearInterval(globalMutable.timer);
-        error(fetchResult.error.message);
+        logger.error('parsing error:');
+        logger.error(fetchResult.error.message);
         await mailService.send({
           to: config.mailer.adminEmail,
           subject: 'xueqiu-rss is down due to parsing error',
@@ -108,34 +93,43 @@ async function handler(args: CliArgs) {
         });
         return;
       }
-      warn(fetchResult.error.message);
+      logger.error('fetch failed');
+      logger.error(fetchResult.error.message);
       return;
     }
 
-    log(`fetch success@${new Date()}}`);
+    logger.info('fetch success');
     const message = fetchResult.value;
-    verbose(`got message ${JSON.stringify(message)}`);
+    logger.debug(`got message from ${config.xueqiu.url}`);
+    logger.debug({
+      time: message.updateTime,
+      posts: message.posts.map((p) => p.title.substring(0, 8)),
+    });
     const mailsToSend = message.posts
       .filter(
         (post) =>
           globalMutable.lastUpdateTime != null &&
           post.publishedTime > globalMutable.lastUpdateTime,
       )
-      .map((post) => post.toMail(config.mailer.subscriber.join(', ')));
+      .map((post) => post.toMail(subscribers));
     const sendResult = await Promise.all(
       mailsToSend.map((mail) => mailService.send(mail)),
     );
     sendResult.forEach((result, idx) => {
       if (!result.isOk) {
-        warn(
-          `failed to send mail to ${mailsToSend[idx]}, error: ${result.error}`,
-        );
+        logger.error('failed to send mail, mail content:');
+        logger.error(mailsToSend[idx]);
+        logger.error('error from email service is:');
+        logger.error(result.error);
       }
     });
     if (mailsToSend.length > 0) {
-      log('mail sent');
+      logger.info('mail sent, contents are:');
+      logger.info(mailsToSend);
+      logger.info('receivers are:');
+      logger.info(subscribers);
     } else {
-      log('nothing to send');
+      logger.info('nothing to send');
     }
     globalMutable.lastUpdateTime = message.updateTime;
   }
@@ -148,11 +142,6 @@ export function main() {
     .command('$0', 'start schdule fetching', {
       builder: (): yargs.Argv<CliArgs> =>
         yargs
-          .option('verbose', {
-            type: 'boolean',
-            default: false,
-            alias: 'v',
-          })
           .option('sendTestEmail', {
             type: 'boolean',
             default: false,

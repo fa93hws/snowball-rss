@@ -12,16 +12,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "debug": "^4.3.3",
     "dotenv": "^10.0.0",
     "nodemailer": "^6.7.2",
     "rsshub": "^1.0.0-master.b5be05b",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
+    "winston": "^3.3.3",
     "yargs": "^17.3.0"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.7",
     "@types/jest": "^27.0.3",
     "@types/nodemailer": "^6.4.4",
     "@typescript-eslint/eslint-plugin": "^5.7.0",

@@ -38,10 +38,6 @@ foo@gmail.com, bar@hotmail.com, foobar@126.com
 
 `node index.js` 即可。也可提供一些命令行参数
 
-### --verbose (默认值: false)
-
-是否打印更多的信息。
-
 ### --send-test-email (默认值: false)
 
 是否在一开始登陆发件邮箱时发送测试邮件。这可以确保邮箱登陆失败的时候立即知晓错误。
