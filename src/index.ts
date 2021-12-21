@@ -103,7 +103,7 @@ async function handler(args: CliArgs) {
     logger.debug(`got message from ${config.xueqiu.url}`);
     logger.debug({
       time: message.updateTime,
-      posts: message.posts.map((p) => p.title.substring(0, 8)),
+      posts: message.posts.map((p) => p.title.substring(0, 18)),
     });
     const mailsToSend = message.posts
       .filter(
