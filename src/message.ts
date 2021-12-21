@@ -2,7 +2,6 @@ import { Result } from './result';
 import type { Mail } from './mailer';
 import { EOL } from 'os';
 import { Sanitize } from './sanitize';
-import * as fs from 'fs';
 import { takeScreenShot } from './screenshot';
 import { ILogger } from './logger';
 

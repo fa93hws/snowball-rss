@@ -1,8 +1,5 @@
 import * as puppeteer from 'puppeteer';
 import { Result } from './result';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
 
 async function maybeCloseLoginModal(page: puppeteer.Page) {
   const closeButton = await page.$<HTMLAnchorElement>(
