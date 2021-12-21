@@ -2,6 +2,9 @@ import { Result } from './result';
 import type { Mail } from './mailer';
 import { EOL } from 'os';
 import { Sanitize } from './sanitize';
+import * as fs from 'fs';
+import { takeScreenShot } from './screenshot';
+import { ILogger } from './logger';
 
 export class Post {
   private constructor(
@@ -54,7 +57,7 @@ export class Post {
     return Result.ok(post);
   }
 
-  toMail(to: string): Mail {
+  async toMail(to: string, logger: ILogger): Promise<Mail> {
     const mailText = [
       'Title:',
       this.title,
@@ -67,11 +70,27 @@ export class Post {
       `Published at: ${this.publishedTime}`,
       `link: ${this.link}`,
     ].join(EOL);
-    return {
+
+    const mail: Mail = {
       subject: 'Subscribed message from snowball-rss',
       text: mailText,
       to,
     };
+    logger.verbose('taking snapshot');
+    const screenshotResult = await takeScreenShot(this.link);
+    if (screenshotResult.isOk) {
+      logger.verbose('snapshot taken');
+      mail.attachments = [
+        {
+          filename: 'screenshot.jpeg',
+          content: screenshotResult.value,
+          contentType: 'image/jpeg',
+        },
+      ];
+    } else {
+      logger.error(screenshotResult.error);
+    }
+    return mail;
   }
 }
 

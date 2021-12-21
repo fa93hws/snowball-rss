@@ -6,6 +6,11 @@ export interface Mail {
   subject: string;
   text: string;
   to: string;
+  attachments?: {
+    filename: string;
+    content: Buffer | string;
+    contentType?: string;
+  }[];
 }
 
 export class MailService {
@@ -31,6 +36,7 @@ export class MailService {
           to: mail.to,
           subject: mail.subject,
           text: mail.text,
+          attachments: mail.attachments,
         },
         (error, info) => {
           if (error) {

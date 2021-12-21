@@ -12,7 +12,7 @@
 
 ### MAILER_SERVICE
 
-发件邮箱的服务提供商，比如`hotmail` 等等。目前代码写的近支持简单的账号密码登陆，所以`gmail`无法使用。推荐这里使用 hotmail
+发件邮箱的服务提供商，比如`hotmail` 等等。目前代码写的仅支持简单的账号密码登陆，所以`gmail`无法使用。推荐这里使用 hotmail
 
 ### MAILER_USER
 
