@@ -68,9 +68,11 @@ async function handler(args: CliArgs) {
       text: 'This email may go to junk mail, remember to have a check there as well.',
     });
     if (!res.isOk) {
+      logger.error('failed to send test email, error:');
       logger.error(res.error);
       return;
     } else {
+      logger.info('managed to send email, reply from server:');
       logger.info(res.value);
     }
   }
