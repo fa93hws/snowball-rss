@@ -25,6 +25,7 @@ export async function takeScreenShot(url: string) {
       type: 'jpeg',
       quality: 80,
       encoding: 'binary',
+      fullPage: true,
     });
     if (typeof buffer === 'string') {
       throw new Error('we should get buffer for screenshot taken by puppeteer');
