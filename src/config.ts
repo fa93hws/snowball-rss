@@ -1,3 +1,5 @@
+import { yellow } from 'chalk';
+
 if (process.env.MAILER_PASS == null) {
   throw new Error(
     'email password must be set via MAIL_PASS environment variable',
@@ -21,10 +23,19 @@ if (process.env.ADMIN_EMAIL == null) {
 if (process.env.SUBSCRIBER == null) {
   throw new Error('subscriber must be set via SUBSCRIBER environment variable');
 }
+if (process.env.XUEQIU_ID == null) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    yellow(
+      'config.xueqiu.url will be deparacted in the future, please set XUEQIU_ID instead, see https://github.com/fa93hws/snowball-rss#xueqiu_id',
+    ),
+  );
+}
 
+const xueqiuID = process.env.XUEQIU_ID ?? '6784593966';
 export const config = {
   xueqiu: {
-    url: 'https://rsshub.app/xueqiu/user/6784593966',
+    url: `https://rsshub.app/xueqiu/user/${xueqiuID}`,
   },
   mailer: {
     service: process.env.MAILER_SERVICE,

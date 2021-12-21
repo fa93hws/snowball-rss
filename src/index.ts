@@ -78,7 +78,7 @@ async function handler(args: CliArgs) {
   }
 
   async function work(): Promise<boolean> {
-    logger.info('start fetching');
+    logger.info('start fetching from ' + config.xueqiu.url);
     const fetchResult = await fetch();
     if (!fetchResult.isOk) {
       process.stderr.write(fetchResult.error + EOL);
