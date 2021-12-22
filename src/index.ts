@@ -32,6 +32,8 @@ async function postToMail(
     '',
     `Published at: ${post.publishedTime}`,
     `link: ${post.link}`,
+    '',
+    '',
   ].join(EOL);
 
   const mail: Mail = {
@@ -91,7 +93,6 @@ async function handler(args: CliArgs) {
   async function work(): Promise<boolean> {
     const fetchResult = await snowballRssService.fetch(config.xueqiu.url);
     if (!fetchResult.isOk) {
-      process.stderr.write(fetchResult.error + EOL);
       if (fetchResult.error.kind === 'parse') {
         await mailService.send({
           to: config.mailer.adminEmail,

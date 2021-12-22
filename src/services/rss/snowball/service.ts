@@ -1,7 +1,6 @@
 import { Result } from '@utils/result';
 import { IRssHubService } from '@services/rss/rsshub-service';
 import { ILogger } from '@services/logging-service';
-import { EOL } from 'os';
 import { Message } from './message';
 
 type FetchError = {
@@ -27,7 +26,6 @@ export class SnowballRssService implements ISnowballRssService {
         .then((rawMessage) => {
           const messageResult = Message.fromRaw(rawMessage);
           if (!messageResult.isOk) {
-            process.stderr.write(messageResult.error + EOL);
             this.logger.error('parsing error:');
             this.logger.error(messageResult.error);
             return resolve(
