@@ -18,18 +18,21 @@ export class Logger {
       transports.push(new winston.transports.Console());
     }
     transports.push(
-      new winston.transports.File({ dirname }),
+      new winston.transports.File({ dirname, filename: 'combined.log' }),
       new winston.transports.File({
         dirname,
         level: 'error',
+        filename: 'error.log',
       }),
       new winston.transports.File({
         dirname,
         level: 'warn',
+        filename: 'warn.log',
       }),
       new winston.transports.File({
         dirname,
         level: 'info',
+        filename: 'info.log',
         maxsize: 20 * 1024 * 1024,
       }),
     );
@@ -37,11 +40,13 @@ export class Logger {
       new winston.transports.File({
         dirname,
         level: 'verbose',
+        filename: 'verbose.log',
         maxsize: 20 * 1024 * 1024,
       }),
       new winston.transports.File({
         dirname,
         level: 'debug',
+        filename: 'debug.log',
         maxsize: 20 * 1024 * 1024,
       }),
     );

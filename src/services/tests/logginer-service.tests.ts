@@ -3,10 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Logger', () => {
-  beforeAll(() => {
-    fs.rmdirSync('fixtures/logs', { recursive: true });
+  const logDir = path.join(__dirname, 'fixtures', 'logs');
+
+  beforeAll(async () => {
+    fs.rmdirSync(logDir, { recursive: true });
     const logger = new Logger({
-      dirname: path.join(__dirname, 'fixtures', 'logs'),
+      dirname: logDir,
       enableConsole: false,
     });
     logger.debug('debug');
@@ -14,11 +16,18 @@ describe('Logger', () => {
     logger.info('info');
     logger.verbose('verbose');
     logger.warn('warn');
+
+    // wait till logs are written
+    for (let i = 0; i < 100; i++) {
+      if (fs.existsSync(logDir) && fs.readdirSync(logDir).length === 6) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
   });
 
   it('write logs to hard disk', () => {
-    const logDir = path.join(__dirname, 'fixtures', 'logs');
-    expect(fs.existsSync(path.join(logDir, 'winston.log'))).toBeTruthy();
+    expect(fs.existsSync(path.join(logDir, 'combined.log'))).toBeTruthy();
     expect(fs.existsSync(path.join(logDir, 'error.log'))).toBeTruthy();
     expect(fs.existsSync(path.join(logDir, 'info.log'))).toBeTruthy();
     expect(fs.existsSync(path.join(logDir, 'warn.log'))).toBeTruthy();
