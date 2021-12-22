@@ -32,6 +32,8 @@ async function postToMail(
     '',
     `Published at: ${post.publishedTime}`,
     `link: ${post.link}`,
+    '',
+    '',
   ].join(EOL);
 
   const mail: Mail = {
