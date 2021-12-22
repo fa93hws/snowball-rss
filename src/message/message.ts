@@ -1,9 +1,9 @@
-import { Result } from './result';
-import type { Mail } from './mailer';
+import { Result } from '../result';
+import type { Mail } from '../mailer';
 import { EOL } from 'os';
 import { sanitizeHtml } from './sanitize';
 import { takeScreenShot } from './screenshot';
-import { ILogger } from './logger';
+import { ILogger } from '../logger';
 
 export class Post {
   private constructor(

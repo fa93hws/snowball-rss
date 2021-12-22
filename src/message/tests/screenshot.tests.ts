@@ -1,9 +1,8 @@
 import { takeScreenShot } from '../screenshot';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip('screenshot', () => {
+describe('screenshot', () => {
   jest.setTimeout(60000);
   it('take a screenshot for a given url', async () => {
     const url = 'https://xueqiu.com/6784593966/206626032';

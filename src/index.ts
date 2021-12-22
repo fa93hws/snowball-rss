@@ -1,6 +1,6 @@
-import * as RSSHub from 'rsshub';
+import RSSHub from 'rsshub';
 import { EOL } from 'os';
-import { Message } from './message';
+import { Message } from './message/message';
 import { GlobalMutable } from './global';
 import { Result } from './result';
 import { config } from './config';
