@@ -1,5 +1,4 @@
 const config = {
-  collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: ['/fake/.+'],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
@@ -14,7 +13,10 @@ const config = {
   },
   preset: 'ts-jest',
 };
+
 module.exports = {
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
+
   projects: [
     {
       displayName: 'unit',
