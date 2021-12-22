@@ -6,7 +6,9 @@ describe('Logger', () => {
   const logDir = path.join(__dirname, 'fixtures', 'logs');
 
   beforeAll(async () => {
-    fs.rmdirSync(logDir, { recursive: true });
+    if (fs.existsSync(logDir)) {
+      fs.rmdirSync(logDir, { recursive: true });
+    }
     const logger = new Logger({
       dirname: logDir,
       enableConsole: false,
