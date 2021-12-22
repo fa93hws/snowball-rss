@@ -7,8 +7,8 @@
     "test": "jest",
     "test:unit": "jest --ci --selectProjects=unit",
     "test:puppeteer": "jest --ci --selectProjects=puppeteer",
-    "format": "prettier --check \"{config,src,tools}/**/*.ts{,x}\"",
-    "lint": "eslint \"{config,src,tools}/**/*.ts{,x}\"",
+    "format": "prettier --check \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
     "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",
     "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub"
   },
