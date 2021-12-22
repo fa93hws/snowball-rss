@@ -34,6 +34,7 @@
     "sanitize-html": "^2.6.1",
     "ts-jest": "^27.1.2",
     "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4",
     "winston": "^3.3.3",
     "yarg": "^1.0.8",

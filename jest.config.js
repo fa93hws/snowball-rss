@@ -8,6 +8,10 @@ module.exports = {
     '!**/stories/**',
   ],
   coverageDirectory: 'coverage',
+  moduleNameMapper: {
+    '@services/(.*)$': '<rootDir>/src/services/$1',
+    '@utils/(.*)$': '<rootDir>/src/utils/$1',
+  },
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.tsnode.json',

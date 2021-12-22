@@ -9,6 +9,10 @@
     "declaration": true,
     "types": ["jest", "node"],
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@utils/*": ["src/utils/*"],
+      "@services/*": ["src/services/*"]
+    }
   }
 }
