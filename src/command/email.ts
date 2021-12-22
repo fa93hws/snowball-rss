@@ -5,6 +5,7 @@ import { rssHubService } from '@services/rss/rsshub-service';
 import { MailService } from '@services/mail-service';
 import { GlobalMutable } from '@utils/global';
 import type { CommandModule } from 'yargs';
+import * as path from 'path';
 import dotenv from 'dotenv';
 import { postToMail } from './convert-post';
 import { readVarsFromEnvs } from './read-envs';
@@ -22,7 +23,8 @@ async function handler(args: CliArgs) {
   }
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
-  const logger = new Logger();
+  const repoRoot = path.join(__dirname, '..', '..');
+  const logger = new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
   const snowballRssService = new SnowballRssService(rssHubService, logger);
   const screenShotService = new ScreenShotService(logger);
   const globalMutable = new GlobalMutable(logger);

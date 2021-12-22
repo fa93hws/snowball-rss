@@ -12,32 +12,35 @@ export interface ILogger {
 export class Logger {
   private readonly logger: winston.Logger;
 
-  constructor() {
-    const transports: Transport[] = [
-      new winston.transports.Console(),
-      new winston.transports.File({ filename: 'logs/app/combined.log' }),
+  constructor({ dirname, enableConsole = true }: { dirname: string; enableConsole?: boolean }) {
+    const transports: Transport[] = [];
+    if (enableConsole) {
+      transports.push(new winston.transports.Console());
+    }
+    transports.push(
+      new winston.transports.File({ dirname }),
       new winston.transports.File({
-        filename: 'logs/app/error.log',
+        dirname,
         level: 'error',
       }),
       new winston.transports.File({
-        filename: 'logs/app/warn.log',
+        dirname,
         level: 'warn',
       }),
       new winston.transports.File({
-        filename: 'logs/app/info.log',
+        dirname,
         level: 'info',
         maxsize: 20 * 1024 * 1024,
       }),
-    ];
+    );
     transports.push(
       new winston.transports.File({
-        filename: 'logs/app/verbose.log',
+        dirname,
         level: 'verbose',
         maxsize: 20 * 1024 * 1024,
       }),
       new winston.transports.File({
-        filename: 'logs/app/debug.log',
+        dirname,
         level: 'debug',
         maxsize: 20 * 1024 * 1024,
       }),
