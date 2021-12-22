@@ -3,7 +3,7 @@ const config = {
     '/fake/.+',
     // screenshot service is covered by puppeteer test.
     'screenshot-service',
-    '.pupeteer.tests.ts',
+    '.tests.ts',
   ],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
