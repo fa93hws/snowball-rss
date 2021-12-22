@@ -17,7 +17,7 @@ describe('mailService', () => {
   it('create transport during construction', () => {
     const mockTransportCreator = jest.fn();
     jest.spyOn(mailer, 'createTransport').mockImplementationOnce(mockTransportCreator);
-    const mailService = new MailService(params, fakeLogger);
+    new MailService(params, fakeLogger);
     expect(mockTransportCreator).toHaveBeenCalledWith({
       service: 'gmail',
       auth: {
