@@ -6,7 +6,7 @@ describe('emailCommandModule', () => {
     const parser = yargs.command(emailCommandModule).strict(true).help();
 
     const parsedArgs = await new Promise<object>((resolve) => {
-      parser.parse('', {}, (err, argv, output) => {
+      parser.parse('', {}, (_, argv) => {
         resolve(argv);
       });
     });
