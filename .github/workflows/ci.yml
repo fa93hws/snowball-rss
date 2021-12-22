@@ -28,6 +28,12 @@ jobs:
       - name: Run typecheck
         run: npm run lint:ts
       - name: Run unit test
-        run: npm run test
+        run: npm run test -- --coverage
+      - name: Report test coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/**/*
+          flags: unittests
       - name: Run esbuild
         run: npm run build

@@ -35,14 +35,12 @@ export class Post {
         `invalid raw post, expect link to be string, but got ${raw.link}`,
       );
     }
-    let pubDate: Date;
-    try {
-      pubDate = new Date(raw.pubDate);
-    } catch {
+    if (typeof raw.pubDate !== 'string' || isNaN(Date.parse(raw.pubDate))) {
       return Result.err(
-        `invalid raw post, expect pubDate to be valid date, got ${raw.pubDate}`,
+        `invalid raw post, expect pubDate to be string and a valid date, got ${raw.pubDate}`,
       );
     }
+    const pubDate = new Date(raw.pubDate);
     const post = new Post(
       raw.title,
       sanitizeHtml(raw.description),
@@ -81,14 +79,12 @@ export class Message {
     }
     const posts = postParseResults.map(Result.unwrap);
 
-    let updateDate: Date;
-    try {
-      updateDate = new Date(raw.updated);
-    } catch {
+    if (typeof raw.updated !== 'string' || isNaN(Date.parse(raw.updated))) {
       return Result.err(
-        `invalid raw message, expect updated to be valid date, got ${raw.updated}`,
+        `invalid raw message, expect updated to be string and a valid date, but got ${raw.updated}`,
       );
     }
+    const updateDate = new Date(raw.updated);
     return Result.ok(new Message(updateDate, posts));
   }
 }

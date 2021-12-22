@@ -22,6 +22,7 @@ module.exports = {
     '@typescript-eslint/no-shadow': ['error'],
 
     'no-console': 'error',
+    eqeqeq: ['error', 'smart'],
 
     'jest/no-test-callback': 'off',
   },
