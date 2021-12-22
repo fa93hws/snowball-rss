@@ -1,5 +1,9 @@
 const config = {
-  coveragePathIgnorePatterns: ['/fake/.+'],
+  coveragePathIgnorePatterns: [
+    '/fake/.+',
+    // screenshot service is covered by puppeteer test.
+    'screenshot-service',
+  ],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
     '@services/(.*)$': '<rootDir>/src/services/$1',
