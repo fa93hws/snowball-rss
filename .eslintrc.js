@@ -20,6 +20,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
     '@typescript-eslint/no-shadow': ['error'],
+    '@typescript-eslint/ban-types': 'off',
 
     'no-console': 'error',
     eqeqeq: ['error', 'smart'],

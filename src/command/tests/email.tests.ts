@@ -1,12 +1,12 @@
 import yargs from 'yargs';
-import { emailCommandModule } from '../email';
+import { commandModule } from '../email';
 
-describe('emailCommandModule', () => {
+describe('commandModule', () => {
   test('default values', async () => {
-    const parser = yargs.command(emailCommandModule).strict(true).help();
+    const parser = yargs.command(commandModule).strict(true).help();
 
     const parsedArgs = await new Promise<object>((resolve) => {
-      parser.parse('', {}, (_, argv) => {
+      parser.parse('--do-not-run', {}, (_, argv) => {
         resolve(argv);
       });
     });
