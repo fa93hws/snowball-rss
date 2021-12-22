@@ -1,10 +1,11 @@
 declare module 'rsshub' {
   namespace RSSHub {
-    const init: (options: {
+    export type RssHubParams = {
       CACHE_TYPE?: null | 'memory' | 'redis';
       requestRetry?: number;
       titleLengthLimit?: number;
-    }) => void;
+    };
+    const init: (options: RssHubParams) => void;
     const request: (url: string) => Promise<any>;
   }
   export = RSSHub;

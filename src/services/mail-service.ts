@@ -1,6 +1,6 @@
 import mailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import { Result } from './result';
+import { Result } from '@utils/result';
 
 export interface Mail {
   subject: string;
@@ -13,7 +13,11 @@ export interface Mail {
   }[];
 }
 
-export class MailService {
+export interface IMailService {
+  send(mail: Mail): Promise<Result.Result<any, Error>>;
+}
+
+export class MailService implements IMailService {
   private readonly transporter: Transporter;
   private readonly from: string;
 

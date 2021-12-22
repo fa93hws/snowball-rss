@@ -1,12 +1,8 @@
-import { Result } from '../result';
-import type { Mail } from '../mailer';
-import { EOL } from 'os';
-import { sanitizeHtml } from './sanitize';
-import { takeScreenShot } from './screenshot';
-import { ILogger } from '../logger';
+import { Result } from '@utils/result';
+import { sanitizeHtml } from '@utils/sanitize';
 
 export class Post {
-  private constructor(
+  constructor(
     readonly title: string,
     readonly content: string,
     readonly publishedTime: Date,
@@ -55,46 +51,10 @@ export class Post {
     );
     return Result.ok(post);
   }
-
-  async toMail(to: string, logger: ILogger): Promise<Mail> {
-    const mailText = [
-      'Title:',
-      this.title,
-      '',
-      '',
-      'Body:',
-      this.content,
-      '',
-      '',
-      `Published at: ${this.publishedTime}`,
-      `link: ${this.link}`,
-    ].join(EOL);
-
-    const mail: Mail = {
-      subject: 'Subscribed message from snowball-rss',
-      text: mailText,
-      to,
-    };
-    logger.verbose('taking snapshot');
-    const screenshotResult = await takeScreenShot(this.link);
-    if (screenshotResult.isOk) {
-      logger.verbose('snapshot taken');
-      mail.attachments = [
-        {
-          filename: 'screenshot.jpeg',
-          content: screenshotResult.value,
-          contentType: 'image/jpeg',
-        },
-      ];
-    } else {
-      logger.error(screenshotResult.error);
-    }
-    return mail;
-  }
 }
 
 export class Message {
-  private constructor(readonly updateTime: Date, readonly posts: Post[]) {}
+  constructor(readonly updateTime: Date, readonly posts: Post[]) {}
 
   /**
    * valid shape:

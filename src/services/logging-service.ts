@@ -9,16 +9,6 @@ export interface ILogger {
   debug(message: any): void;
 }
 
-/* eslint-disable no-console */
-export const fakeLogger: ILogger = {
-  info: (message) => console.log(message),
-  error: (message) => console.error(message),
-  warn: (message) => console.warn(message),
-  verbose: (message) => console.log(message),
-  debug: (message) => console.log(message),
-};
-/* eslint-enable no-console */
-
 export class Logger {
   private readonly logger: winston.Logger;
 

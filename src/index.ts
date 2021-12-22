@@ -1,46 +1,59 @@
+import { Logger, ILogger } from '@services/logging-service';
+import type { Post } from '@services/rss/snowball/message';
+import { SnowballRssService } from '@services/rss/snowball/service';
+import {
+  IScreenShotService,
+  ScreenShotService,
+} from '@services/screenshot-service';
 import RSSHub from 'rsshub';
 import { EOL } from 'os';
-import { Message } from './message/message';
-import { GlobalMutable } from './global';
-import { Result } from './result';
-import { config } from './config';
-import { MailService } from './mailer';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import type { Argv } from 'yargs';
-import { Logger } from './logger';
 import dotenv from 'dotenv';
+import { GlobalMutable } from './global';
+import { config } from './config';
+import { MailService, Mail } from './services/mail-service';
+import { rssHubService } from '@services/rss/rsshub-service';
 
-type FetchError = {
-  kind: 'parse' | 'network';
-  message: string;
-};
+async function postToMail(
+  post: Post,
+  to: string,
+  logger: ILogger,
+  screenShotService: IScreenShotService,
+): Promise<Mail> {
+  const mailText = [
+    'Title:',
+    post.title,
+    '',
+    '',
+    'Body:',
+    post.content,
+    '',
+    '',
+    `Published at: ${post.publishedTime}`,
+    `link: ${post.link}`,
+  ].join(EOL);
 
-function fetch(): Promise<Result.Result<Message, FetchError>> {
-  return new Promise((resolve) => {
-    RSSHub.request(config.xueqiu.url)
-      .then((rawMessage) => {
-        const messageResult = Message.fromRaw(rawMessage);
-        if (!messageResult.isOk) {
-          process.stderr.write(messageResult.error + EOL);
-          return resolve(
-            Result.err({
-              kind: 'parse',
-              message: messageResult.error,
-            }),
-          );
-        }
-        return resolve(Result.ok(messageResult.value));
-      })
-      .catch((err) => {
-        resolve(
-          Result.err({
-            message: err.toString(),
-            kind: 'network',
-          }),
-        );
-      });
-  });
+  const mail: Mail = {
+    subject: 'Subscribed message from snowball-rss',
+    text: mailText,
+    to,
+  };
+  logger.verbose('taking snapshot');
+  const screenshotResult = await screenShotService.capturePage(post.link);
+  if (screenshotResult.isOk) {
+    logger.verbose('snapshot taken');
+    mail.attachments = [
+      {
+        filename: 'screenshot.jpeg',
+        content: screenshotResult.value,
+        contentType: 'image/jpeg',
+      },
+    ];
+  } else {
+    logger.error(screenshotResult.error);
+  }
+  return mail;
 }
 
 type CliArgs = {
@@ -50,6 +63,9 @@ type CliArgs = {
 
 async function handler(args: CliArgs) {
   const logger = new Logger();
+  const snowballRssService = new SnowballRssService(rssHubService);
+  const screenShotService = new ScreenShotService();
+
   const globalMutable = new GlobalMutable();
   const subscribers = config.mailer.subscriber.join(', ');
   RSSHub.init({
@@ -82,7 +98,7 @@ async function handler(args: CliArgs) {
 
   async function work(): Promise<boolean> {
     logger.info('start fetching from ' + config.xueqiu.url);
-    const fetchResult = await fetch();
+    const fetchResult = await snowballRssService.fetch(config.xueqiu.url);
     if (!fetchResult.isOk) {
       process.stderr.write(fetchResult.error + EOL);
       if (fetchResult.error.kind === 'parse') {
@@ -114,7 +130,9 @@ async function handler(args: CliArgs) {
             globalMutable.lastUpdateTime != null &&
             post.publishedTime > globalMutable.lastUpdateTime,
         )
-        .map((post) => post.toMail(subscribers, logger)),
+        .map((post) =>
+          postToMail(post, subscribers, logger, screenShotService),
+        ),
     );
     const sendResult = await Promise.all(
       mailsToSend.map((mail) => mailService.send(mail)),
@@ -160,8 +178,8 @@ export function main() {
   const yargsInstance = yargs(hideBin(process.argv));
   yargsInstance
     .command('$0', 'start schedule fetching', {
-      builder: (): Argv<CliArgs> =>
-        yargsInstance
+      builder: (args): yargs.Argv<CliArgs> =>
+        args
           .option('sendTestEmail', {
             type: 'boolean',
             default: false,
