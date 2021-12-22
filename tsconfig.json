@@ -2,19 +2,13 @@
   "compilerOptions": {
     "strict": true,
     "module": "CommonJS",
-    "moduleResolution": "node",
-    "target": "ES2019",
+    "moduleResolution": "Node",
+    "target": "ES5",
     "baseUrl": "./",
     "outDir": "dist",
     "declaration": true,
-    "jsx": "react",
     "types": ["jest", "node"],
     "skipLibCheck": true,
-    "paths": {
-      "@styles/*": ["./src/styles/*"],
-      "@ui/*": ["./src/ui/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@services/*": ["./src/services/*"]
-    }
+    "esModuleInterop": true
   }
 }

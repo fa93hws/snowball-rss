@@ -7,20 +7,13 @@
     "test": "jest --ci",
     "format": "prettier --check \"{config,src,tools}/**/*.ts{,x}\"",
     "lint": "eslint \"{config,src,tools}/**/*.ts{,x}\"",
-    "lint:ts": "tsc --noEmit --project ./tsconfig.check.json"
+    "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",
+    "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chalk": "^4.1.2",
-    "dotenv": "^10.0.0",
-    "nodemailer": "^6.7.2",
-    "rsshub": "^1.0.0-master.b5be05b",
-    "sanitize-html": "^2.6.1",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.5.4",
-    "winston": "^3.3.3",
-    "yargs": "^17.3.0"
+    "rsshub": "^1.0.0-master.b5be05b"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
@@ -28,12 +21,22 @@
     "@types/sanitize-html": "^2.6.0",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
+    "chalk": "^4.1.2",
+    "dotenv": "^10.0.0",
+    "esbuild": "^0.14.7",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-jest": "^25.3.0",
     "jest": "^27.4.5",
+    "nodemailer": "^6.7.2",
     "prettier": "^2.5.1",
-    "ts-jest": "^27.1.2"
+    "sanitize-html": "^2.6.1",
+    "ts-jest": "^27.1.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4",
+    "winston": "^3.3.3",
+    "yarg": "^1.0.8",
+    "yargs": "^17.3.0"
   }
 }
