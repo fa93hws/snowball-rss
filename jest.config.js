@@ -1,6 +1,5 @@
-module.exports = {
-  testMatch: ['**/tests/**/*.tests.ts{,x}'],
-  collectCoverageFrom: ['src/**/*.ts{,x}', '!**/fixtures/**', '!**/fake/**'],
+const config = {
+  collectCoverageFrom: ['src/**/*.ts', '!**/fixtures/**', '!**/fake/**'],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
     '@services/(.*)$': '<rootDir>/src/services/$1',
@@ -13,5 +12,18 @@ module.exports = {
     },
   },
   preset: 'ts-jest',
-  testEnvironment: 'jsdom',
+};
+module.exports = {
+  projects: [
+    {
+      displayName: 'unit',
+      testMatch: ['**/tests/**/*.tests.ts', '!**/*.puppeteer.tests.ts'],
+      ...config,
+    },
+    {
+      displayName: 'puppeteer',
+      testMatch: ['**/tests/*.puppeteer.tests.ts'],
+      ...config,
+    },
+  ],
 };

@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --ci",
+    "test": "jest",
+    "test:unit": "jest --ci --selectProjects=unit",
+    "test:puppeteer": "jest --ci --selectProjects=puppeteer",
     "format": "prettier --check \"{config,src,tools}/**/*.ts{,x}\"",
     "lint": "eslint \"{config,src,tools}/**/*.ts{,x}\"",
     "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",
