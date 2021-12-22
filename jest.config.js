@@ -1,5 +1,6 @@
 const config = {
-  collectCoverageFrom: ['src/**/*.ts', '!**/fixtures/**', '!**/fake/**'],
+  collectCoverageFrom: ['src/**/*.ts'],
+  coveragePathIgnorePatterns: ['/fake/.+'],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
     '@services/(.*)$': '<rootDir>/src/services/$1',

@@ -36,6 +36,17 @@ describe('Post', () => {
     ).toMatchObject({ isOk: false });
   });
 
+  it('expects string for description', () => {
+    expect(
+      Post.fromRaw({
+        title: 'title1',
+        description: 123,
+        pubDate: 'Wed, 22 Dec 2021 02:16:58 GMT',
+        link: 'link1',
+      }),
+    ).toMatchObject({ isOk: false });
+  });
+
   it('expects string for pubDate', () => {
     expect(
       Post.fromRaw({
@@ -101,6 +112,15 @@ describe('Message', () => {
     expect(
       Message.fromRaw({
         item: {},
+        updated: 'Wed, 22 Dec 2021 02:16:58 GMT',
+      }),
+    ).toMatchObject({ isOk: false });
+  });
+
+  it('expect every item in the array is valid raw post for item', () => {
+    expect(
+      Message.fromRaw({
+        item: [...rawPosts, ...rawPosts, {}],
         updated: 'Wed, 22 Dec 2021 02:16:58 GMT',
       }),
     ).toMatchObject({ isOk: false });

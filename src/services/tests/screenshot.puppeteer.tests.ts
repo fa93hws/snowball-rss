@@ -1,5 +1,5 @@
 import { ScreenShotService } from '../screenshot-service';
-import { fakeLogger } from '../fake/fake-logging-service';
+import { fakeLogger } from '../fake/logging-service';
 import fs from 'fs';
 import path from 'path';
 

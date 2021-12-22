@@ -69,7 +69,7 @@ export class Message {
       );
     }
     const postParseResults = (raw.item as any[]).map(Post.fromRaw);
-    if (postParseResults.every((r) => r.isOk === false)) {
+    if (postParseResults.some((r) => r.isOk === false)) {
       return Result.err(
         postParseResults
           .filter((r): r is Result.Err => r.isOk === false)
