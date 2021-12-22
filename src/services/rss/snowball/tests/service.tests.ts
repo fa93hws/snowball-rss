@@ -1,6 +1,6 @@
 import { Result } from '@utils/result';
 import type { IRssHubService } from '@services/rss/rsshub-service';
-import { fakeLogger } from '@services/fake/fake-logging-service';
+import { fakeLogger } from '@services/fake/logging-service';
 import { SnowballRssService } from '../service';
 import { Message, Post } from '../message';
 
