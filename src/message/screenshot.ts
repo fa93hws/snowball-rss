@@ -1,5 +1,5 @@
-import * as puppeteer from 'puppeteer';
-import { Result } from './result';
+import puppeteer from 'puppeteer';
+import { Result } from '../result';
 
 async function maybeCloseLoginModal(page: puppeteer.Page) {
   const closeButton = await page.$<HTMLAnchorElement>(

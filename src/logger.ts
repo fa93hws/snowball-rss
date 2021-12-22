@@ -1,4 +1,4 @@
-import * as winston from 'winston';
+import winston from 'winston';
 import type { transport as Transport } from 'winston';
 
 export interface ILogger {

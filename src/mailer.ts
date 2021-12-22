@@ -1,4 +1,4 @@
-import * as mailer from 'nodemailer';
+import mailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { Result } from './result';
 
