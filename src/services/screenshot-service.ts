@@ -7,9 +7,7 @@ export interface IScreenShotService {
 }
 
 async function maybeCloseLoginModal(page: puppeteer.Page) {
-  const closeButton = await page.$<HTMLAnchorElement>(
-    'div.modal.modal__login>a.close',
-  );
+  const closeButton = await page.$<HTMLAnchorElement>('div.modal.modal__login>a.close');
   if (closeButton != null) {
     await closeButton.evaluate((b) => b.click());
   }
@@ -36,9 +34,7 @@ export class ScreenShotService implements IScreenShotService {
         fullPage: true,
       });
       if (typeof buffer === 'string') {
-        throw new Error(
-          'we should get buffer for screenshot taken by puppeteer',
-        );
+        throw new Error('we should get buffer for screenshot taken by puppeteer');
       }
       await browser.close();
       this.logger.info(`snapshot has been taken for ${url}`);

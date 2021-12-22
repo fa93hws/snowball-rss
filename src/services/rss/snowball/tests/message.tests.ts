@@ -16,12 +16,7 @@ describe('Post', () => {
       }),
     ).toEqual({
       isOk: true,
-      value: new Post(
-        'title1',
-        'description1',
-        new Date('2021-12-22T02:16:58Z'),
-        'link1',
-      ),
+      value: new Post('title1', 'description1', new Date('2021-12-22T02:16:58Z'), 'link1'),
     });
   });
 

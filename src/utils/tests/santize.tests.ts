@@ -10,8 +10,6 @@ describe('html', () => {
   it('keep <blockquote> tag', () => {
     const dirty = 'before text<blockquote >marked text</blockquote>after text';
     const clean = sanitizeHtml(dirty);
-    expect(clean).toEqual(
-      'before text<blockquote>marked text</blockquote>after text',
-    );
+    expect(clean).toEqual('before text<blockquote>marked text</blockquote>after text');
   });
 });

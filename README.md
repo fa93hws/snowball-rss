@@ -31,7 +31,7 @@
 
 管理员邮箱。填你自己的邮箱就好，用了接收一些测试邮件，以及崩溃通知
 
-### SUBSCRIBER
+### SUBSCRIBERS
 
 订阅者邮箱，有新的消息会发邮件给所有订阅者。通过`, `分割（当中有个空格）。比如
 
@@ -39,7 +39,7 @@
 foo@gmail.com, bar@hotmail.com, foobar@126.com
 ```
 
-### XUEQIU_ID
+### SNOWBALL_USER_ID
 
 关注的用户的 ID，可以从雪球用户的个人页面的网址中取得。比如 https://xueqiu.com/u/1334706236 是 `1334706236`
 

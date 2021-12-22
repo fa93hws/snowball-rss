@@ -39,22 +39,12 @@ describe('fetch', () => {
         },
       ],
     });
-    const messageResult = await snowballRssService.fetch('some_url');
-    expect(mockRequest).toHaveBeenCalledWith('some_url');
+    const messageResult = await snowballRssService.fetch('uid');
+    expect(mockRequest).toHaveBeenCalledWith('https://rsshub.app/xueqiu/user/uid');
     expect(messageResult.isOk).toBe(true);
     const posts = [
-      new Post(
-        'title1',
-        'description1',
-        new Date('2021-12-22T02:16:58Z'),
-        'link1',
-      ),
-      new Post(
-        'title2',
-        'description2',
-        new Date('2021-12-17T08:31:19Z'),
-        'link2',
-      ),
+      new Post('title1', 'description1', new Date('2021-12-22T02:16:58Z'), 'link1'),
+      new Post('title2', 'description2', new Date('2021-12-17T08:31:19Z'), 'link2'),
     ];
     expect(Result.unwrap(messageResult)).toEqual(
       new Message(new Date('2021-12-22T04:44:14.812Z'), posts),
@@ -63,8 +53,8 @@ describe('fetch', () => {
 
   it('returns parsing error when fetch result is some random object', async () => {
     mockRequest.mockResolvedValueOnce({ who: 'am I?' });
-    const messageResult = await snowballRssService.fetch('some_url');
-    expect(mockRequest).toHaveBeenCalledWith('some_url');
+    const messageResult = await snowballRssService.fetch('uid');
+    expect(mockRequest).toHaveBeenCalledWith('https://rsshub.app/xueqiu/user/uid');
     expect(messageResult.isOk).toBe(false);
     if (messageResult.isOk) {
       throw new Error('it should not be ok');
@@ -74,8 +64,8 @@ describe('fetch', () => {
 
   it('returns network error when fetch failed', async () => {
     mockRequest.mockRejectedValueOnce(1);
-    const messageResult = await snowballRssService.fetch('some_url');
-    expect(mockRequest).toHaveBeenCalledWith('some_url');
+    const messageResult = await snowballRssService.fetch('uid');
+    expect(mockRequest).toHaveBeenCalledWith('https://rsshub.app/xueqiu/user/uid');
     expect(messageResult.isOk).toBe(false);
     if (messageResult.isOk) {
       throw new Error('it should not be ok');

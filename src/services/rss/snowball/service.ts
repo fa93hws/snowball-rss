@@ -13,12 +13,10 @@ export interface ISnowballRssService {
 }
 
 export class SnowballRssService implements ISnowballRssService {
-  constructor(
-    private readonly rssHubService: IRssHubService,
-    private readonly logger: ILogger,
-  ) {}
+  constructor(private readonly rssHubService: IRssHubService, private readonly logger: ILogger) {}
 
-  fetch(url: string): Promise<Result.Result<Message, FetchError>> {
+  fetch(uid: string): Promise<Result.Result<Message, FetchError>> {
+    const url = `https://rsshub.app/xueqiu/user/${uid}`;
     this.logger.verbose('start fetching from ' + url);
     return new Promise((resolve) => {
       this.rssHubService

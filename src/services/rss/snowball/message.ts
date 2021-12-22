@@ -21,9 +21,7 @@ export class Post {
       return Result.err(`invalid raw post, expect object, but got ${raw}`);
     }
     if (typeof raw.title !== 'string') {
-      return Result.err(
-        `invalid raw post, expect title to be string, but got ${raw.title}`,
-      );
+      return Result.err(`invalid raw post, expect title to be string, but got ${raw.title}`);
     }
     if (typeof raw.description !== 'string') {
       return Result.err(
@@ -31,9 +29,7 @@ export class Post {
       );
     }
     if (typeof raw.link !== 'string') {
-      return Result.err(
-        `invalid raw post, expect link to be string, but got ${raw.link}`,
-      );
+      return Result.err(`invalid raw post, expect link to be string, but got ${raw.link}`);
     }
     if (typeof raw.pubDate !== 'string' || isNaN(Date.parse(raw.pubDate))) {
       return Result.err(
@@ -41,12 +37,7 @@ export class Post {
       );
     }
     const pubDate = new Date(raw.pubDate);
-    const post = new Post(
-      raw.title,
-      sanitizeHtml(raw.description),
-      pubDate,
-      raw.link,
-    );
+    const post = new Post(raw.title, sanitizeHtml(raw.description), pubDate, raw.link);
     return Result.ok(post);
   }
 }
@@ -64,9 +55,7 @@ export class Message {
       return Result.err(`invalid raw message, expect object, but got ${raw}`);
     }
     if (!Array.isArray(raw.item)) {
-      return Result.err(
-        `invalid raw message, expect item to be an array, but got ${raw.item}`,
-      );
+      return Result.err(`invalid raw message, expect item to be an array, but got ${raw.item}`);
     }
     const postParseResults = (raw.item as any[]).map(Post.fromRaw);
     if (postParseResults.some((r) => r.isOk === false)) {
