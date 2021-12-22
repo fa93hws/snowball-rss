@@ -1,12 +1,10 @@
 name: CI
 
 on:
+  pull_request:
   push:
     branches:
       - master
-  pull_request:
-    paths-ignore:
-      - '**.md'
   release:
     types:
       - published
@@ -31,3 +29,5 @@ jobs:
         run: npm run lint:ts
       - name: Run unit test
         run: npm run test
+      - name: Run esbuild
+        run: npm run build

@@ -1,7 +1,7 @@
 import { Result } from './result';
 import type { Mail } from './mailer';
 import { EOL } from 'os';
-import { Sanitize } from './sanitize';
+import { sanitizeHtml } from './sanitize';
 import { takeScreenShot } from './screenshot';
 import { ILogger } from './logger';
 
@@ -49,7 +49,7 @@ export class Post {
     }
     const post = new Post(
       raw.title,
-      Sanitize.html(raw.description),
+      sanitizeHtml(raw.description),
       pubDate,
       raw.link,
     );

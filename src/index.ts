@@ -5,8 +5,11 @@ import { GlobalMutable } from './global';
 import { Result } from './result';
 import { config } from './config';
 import { MailService } from './mailer';
-import * as yargs from 'yargs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import type { Argv } from 'yargs';
 import { Logger } from './logger';
+import dotenv from 'dotenv';
 
 type FetchError = {
   kind: 'parse' | 'network';
@@ -153,10 +156,12 @@ async function handler(args: CliArgs) {
 }
 
 export function main() {
-  yargs
+  dotenv.config();
+  const yargsInstance = yargs(hideBin(process.argv));
+  yargsInstance
     .command('$0', 'start schedule fetching', {
-      builder: (): yargs.Argv<CliArgs> =>
-        yargs
+      builder: (): Argv<CliArgs> =>
+        yargsInstance
           .option('sendTestEmail', {
             type: 'boolean',
             default: false,
@@ -174,3 +179,5 @@ export function main() {
     .help()
     .parse();
 }
+
+main();
