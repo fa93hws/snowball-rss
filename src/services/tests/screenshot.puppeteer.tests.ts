@@ -12,11 +12,9 @@ describe('screenshot', () => {
     if (bufferResult.isOk === false) {
       throw bufferResult.error;
     }
-    fs.writeFileSync(
-      path.join(__dirname, 'screenshot.png'),
-      bufferResult.value,
-      { encoding: 'binary' },
-    );
+    fs.writeFileSync(path.join(__dirname, 'screenshot.png'), bufferResult.value, {
+      encoding: 'binary',
+    });
     expect(bufferResult.isOk).toBe(true);
   });
 });
