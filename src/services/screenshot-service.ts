@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { ILogger } from '@services/logging-service';
 import { Result } from '@utils/result';
 
 export interface IScreenShotService {
@@ -15,7 +16,10 @@ async function maybeCloseLoginModal(page: puppeteer.Page) {
 }
 
 export class ScreenShotService implements IScreenShotService {
+  constructor(private readonly logger: ILogger) {}
+
   async capturePage(url: string): Promise<Result.Result<Buffer, unknown>> {
+    this.logger.verbose(`taking snapshot for ${url}`);
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
@@ -37,9 +41,12 @@ export class ScreenShotService implements IScreenShotService {
         );
       }
       await browser.close();
+      this.logger.info(`snapshot has been taken for ${url}`);
       return Result.ok(buffer);
     } catch (e) {
       await browser.close();
+      this.logger.error(`failed to take snapshot for ${url}, error is`);
+      this.logger.error(e);
       return Result.err(e);
     }
   }
