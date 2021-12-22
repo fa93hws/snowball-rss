@@ -12,7 +12,8 @@ describe('screenshot', () => {
     if (bufferResult.isOk === false) {
       throw bufferResult.error;
     }
-    fs.writeFileSync(path.join(__dirname, 'screenshot.png'), bufferResult.value, {
+    fs.mkdirSync(path.join(__dirname, 'fixtures'), { recursive: true });
+    fs.writeFileSync(path.join(__dirname, 'fixtures', 'screenshot.png'), bufferResult.value, {
       encoding: 'binary',
     });
     expect(bufferResult.isOk).toBe(true);
