@@ -1,7 +1,4 @@
 const config = {
-  collectCoverageFrom: ['src/**/*.ts'],
-  coveragePathIgnorePatterns: ['/fake/.+'],
-  coverageDirectory: 'coverage',
   moduleNameMapper: {
     '@services/(.*)$': '<rootDir>/src/services/$1',
     '@utils/(.*)$': '<rootDir>/src/utils/$1',
@@ -14,7 +11,12 @@ const config = {
   },
   preset: 'ts-jest',
 };
+
 module.exports = {
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
+  coveragePathIgnorePatterns: ['/fake/.+'],
+  coverageDirectory: 'coverage',
+
   projects: [
     {
       displayName: 'unit',
