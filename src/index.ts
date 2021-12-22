@@ -10,7 +10,7 @@ import { EOL } from 'os';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
-import { GlobalMutable } from './global';
+import { GlobalMutable } from './utils/global';
 import { config } from './config';
 import { MailService, Mail } from './services/mail-service';
 import { rssHubService } from '@services/rss/rsshub-service';
@@ -39,10 +39,8 @@ async function postToMail(
     text: mailText,
     to,
   };
-  logger.verbose('taking snapshot');
   const screenshotResult = await screenShotService.capturePage(post.link);
   if (screenshotResult.isOk) {
-    logger.verbose('snapshot taken');
     mail.attachments = [
       {
         filename: 'screenshot.jpeg',
@@ -51,7 +49,7 @@ async function postToMail(
       },
     ];
   } else {
-    logger.error(screenshotResult.error);
+    logger.warn('failed to capture screenshot, will send email without it');
   }
   return mail;
 }
@@ -63,47 +61,38 @@ type CliArgs = {
 
 async function handler(args: CliArgs) {
   const logger = new Logger();
-  const snowballRssService = new SnowballRssService(rssHubService);
-  const screenShotService = new ScreenShotService();
+  const snowballRssService = new SnowballRssService(rssHubService, logger);
+  const screenShotService = new ScreenShotService(logger);
+  const globalMutable = new GlobalMutable(logger);
 
-  const globalMutable = new GlobalMutable();
   const subscribers = config.mailer.subscriber.join(', ');
   RSSHub.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
   });
-  logger.info('logging into email service');
-  const mailService = new MailService({
-    service: config.mailer.service,
-    user: config.mailer.sender.user,
-    pass: config.mailer.sender.pass,
-  });
+  const mailService = new MailService(
+    {
+      service: config.mailer.service,
+      user: config.mailer.sender.user,
+      pass: config.mailer.sender.pass,
+    },
+    logger,
+  );
 
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
-    const res = await mailService.send({
+    await mailService.send({
       to: config.mailer.adminEmail,
       subject: 'testing email service',
       text: 'This email may go to junk mail, remember to have a check there as well.',
     });
-    if (!res.isOk) {
-      logger.error('failed to send test email, error:');
-      logger.error(res.error);
-      return;
-    } else {
-      logger.info('managed to send email, reply from server:');
-      logger.info(res.value);
-    }
   }
 
   async function work(): Promise<boolean> {
-    logger.info('start fetching from ' + config.xueqiu.url);
     const fetchResult = await snowballRssService.fetch(config.xueqiu.url);
     if (!fetchResult.isOk) {
       process.stderr.write(fetchResult.error + EOL);
       if (fetchResult.error.kind === 'parse') {
-        logger.error('parsing error:');
-        logger.error(fetchResult.error.message);
         await mailService.send({
           to: config.mailer.adminEmail,
           subject: 'xueqiu-rss is down due to parsing error',
@@ -111,8 +100,6 @@ async function handler(args: CliArgs) {
         });
         return false;
       }
-      logger.error('fetch failed');
-      logger.error(fetchResult.error.message);
       return true;
     }
 
@@ -121,7 +108,7 @@ async function handler(args: CliArgs) {
     logger.debug(`got message from ${config.xueqiu.url}`);
     logger.debug({
       time: message.updateTime,
-      posts: message.posts.map((p) => p.title.substring(0, 18)),
+      posts: message.posts.map((p) => p.title.substring(0, 30)),
     });
     const mailsToSend = await Promise.all(
       message.posts
@@ -134,28 +121,11 @@ async function handler(args: CliArgs) {
           postToMail(post, subscribers, logger, screenShotService),
         ),
     );
-    const sendResult = await Promise.all(
-      mailsToSend.map((mail) => mailService.send(mail)),
-    );
-    // no logging for attachments
-    mailsToSend.forEach((mail) => delete mail.attachments);
-    sendResult.forEach((result, idx) => {
-      if (!result.isOk) {
-        logger.error('failed to send mail, mail content:');
-        logger.error(mailsToSend[idx]);
-        logger.error('error from email service is:');
-        logger.error(result.error);
-      }
-    });
-    if (mailsToSend.length > 0) {
-      logger.info('mail sent, contents are:');
-      logger.info(mailsToSend);
-      logger.info('receivers are:');
-      logger.info(subscribers);
-    } else {
-      logger.info('nothing to send');
+    await Promise.all(mailsToSend.map((mail) => mailService.send(mail)));
+    if (mailsToSend.length === 0) {
+      logger.info('no new posts, nothing to send');
     }
-    globalMutable.lastUpdateTime = message.updateTime;
+    globalMutable.setLastUpdateTime(message.updateTime);
     return true;
   }
 
