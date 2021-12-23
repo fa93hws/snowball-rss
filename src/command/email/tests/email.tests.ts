@@ -1,5 +1,5 @@
 import yargs from 'yargs';
-import { commandModule } from '../email';
+import { commandModule } from '../email-command';
 
 describe('commandModule', () => {
   test('default values', async () => {
