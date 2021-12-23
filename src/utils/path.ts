@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-export function repoRoot() {
+export function getRepoRoot() {
   let dir = __dirname;
   while (dir !== path.resolve(dir, '..')) {
     if (fs.existsSync(path.join(dir, 'package.json'))) {
