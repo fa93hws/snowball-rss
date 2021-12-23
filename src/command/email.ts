@@ -9,6 +9,7 @@ import * as path from 'path';
 import dotenv from 'dotenv';
 import { postToMail } from './convert-post';
 import { readVarsFromEnvs } from './read-envs';
+import { Scheduler, WorkResult } from './scheduler';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -17,7 +18,7 @@ type CliArgs = {
   doNotRun: boolean;
 };
 
-async function handler(args: CliArgs) {
+async function handler(args: CliArgs): Promise<void> {
   if (args.doNotRun) {
     return;
   }
@@ -51,7 +52,7 @@ async function handler(args: CliArgs) {
     });
   }
 
-  async function work(): Promise<boolean> {
+  async function scheduledWork(): Promise<WorkResult> {
     const fetchResult = await snowballRssService.fetch(envVars.snowballUserId);
     if (!fetchResult.isOk) {
       if (fetchResult.error.kind === 'parse') {
@@ -60,9 +61,9 @@ async function handler(args: CliArgs) {
           subject: 'snowball-rss is down due to parsing error',
           text: fetchResult.error.message,
         });
-        return false;
+        return { shouldContinue: false };
       }
-      return true;
+      return { shouldContinue: true };
     }
 
     logger.info('fetch success');
@@ -86,19 +87,17 @@ async function handler(args: CliArgs) {
       logger.info('no new posts, nothing to send');
     }
     globalMutable.setLastUpdateTime(message.updateTime);
-    return true;
+    return { shouldContinue: true };
   }
 
-  async function scheduleWork() {
-    const canContinue = await work();
-    if (canContinue) {
-      logger.debug(`can continue, next run after ${args.intervalSecond} seconds`);
-      setTimeout(scheduleWork, args.intervalSecond * 1000);
-    } else {
-      logger.error('can not continue, exit');
-    }
-  }
-  await scheduleWork();
+  const scheduler = new Scheduler({
+    intervalSecond: args.intervalSecond,
+    scheduledWork,
+    logger,
+    name: 'the only one',
+    immediate: true,
+  });
+  scheduler.start();
 }
 
 export const commandModule: CommandModule<{}, CliArgs> = {
