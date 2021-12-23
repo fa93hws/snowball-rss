@@ -2,7 +2,7 @@ import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
-import type { Mail} from '@services/mail-service';
+import type { Mail } from '@services/mail-service';
 import { MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
