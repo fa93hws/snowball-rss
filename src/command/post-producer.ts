@@ -1,6 +1,6 @@
-import { ILogger } from '@services/logging-service';
-import { Post } from '@services/rss/snowball/message';
-import { FetchError, ISnowballRssService } from '@services/rss/snowball/service';
+import type { ILogger } from '@services/logging-service';
+import type { Post } from '@services/rss/snowball/message';
+import type { FetchError, ISnowballRssService } from '@services/rss/snowball/service';
 import { Result } from '@utils/result';
 
 export class PostProducer {

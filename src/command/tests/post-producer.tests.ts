@@ -1,6 +1,6 @@
 import { fakeLogger } from '@services/fake/logging-service';
 import { Message, Post } from '@services/rss/snowball/message';
-import { ISnowballRssService } from '@services/rss/snowball/service';
+import type { ISnowballRssService } from '@services/rss/snowball/service';
 import { Result } from '@utils/result';
 import { PostProducer } from '../post-producer';
 

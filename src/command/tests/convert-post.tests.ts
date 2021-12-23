@@ -1,5 +1,5 @@
 import { fakeLogger } from '@services/fake/logging-service';
-import { IScreenShotService } from '@services/screenshot-service';
+import type { IScreenShotService } from '@services/screenshot-service';
 import { Post } from '@services/rss/snowball/message';
 import { Result } from '@utils/result';
 import { postToMail } from '../convert-post';

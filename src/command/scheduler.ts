@@ -1,4 +1,4 @@
-import { ILogger } from '@services/logging-service';
+import type { ILogger } from '@services/logging-service';
 
 interface IScheduler {
   start(): void;
