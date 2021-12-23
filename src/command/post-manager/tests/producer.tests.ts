@@ -2,7 +2,7 @@ import { fakeLogger } from '@services/fake/logging-service';
 import { Message, Post } from '@services/rss/snowball/message';
 import type { ISnowballRssService } from '@services/rss/snowball/service';
 import { Result } from '@utils/result';
-import { PostProducer } from '../post-producer';
+import { PostProducer } from '../producer';
 
 function postsToOldPostLinks(posts: Post[]): Map<string, Date> {
   const oldPostLinks = new Map<string, Date>();

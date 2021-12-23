@@ -3,7 +3,23 @@ import type { Post } from '@services/rss/snowball/message';
 import type { FetchError, ISnowballRssService } from '@services/rss/snowball/service';
 import { Result } from '@utils/result';
 
-export class PostProducer {
+export interface IPostProducer {
+  produceNew(
+    snowballUser: string,
+    options?: {
+      isFirstRun?: boolean;
+    },
+  ): Promise<Result.Result<Post[], FetchError>>;
+}
+
+export type PostWithScreenshot = Post & {
+  screenshot?: {
+    content?: Buffer;
+    triedTimes: number;
+  };
+};
+
+export class PostProducer implements IPostProducer {
   private readonly logger: ILogger;
   private readonly snowballRssService: ISnowballRssService;
   // key: link of the post. value: publish date of the post
@@ -61,7 +77,7 @@ export class PostProducer {
       // That means these result should not be considered as new posts
       isFirstRun?: boolean;
     } = {},
-  ): Promise<Result.Result<Post[], FetchError>> {
+  ): Promise<Result.Result<PostWithScreenshot[], FetchError>> {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       return Result.err(fetchResult.error);
