@@ -26,10 +26,11 @@ export class PostProducer {
   }
 
   private findNewPosts(posts: Post[]): Post[] {
-    posts.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
+    const clone = [...posts];
+    clone.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
     const newPosts: Post[] = [];
     while (true) {
-      const latestPost = posts.pop();
+      const latestPost = clone.pop();
       if (latestPost == null || this.oldPostLinks.has(latestPost.link)) {
         break;
       }
