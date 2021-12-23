@@ -1,3 +1,4 @@
+import type { ICrashService } from '@services/crash-service';
 import { fakeLogger } from '@services/fake/logging-service';
 import { Message, Post } from '@services/rss/snowball/message';
 import type { ISnowballRssService } from '@services/rss/snowball/service';
@@ -13,6 +14,8 @@ function postsToOldPostLinks(posts: Post[]): Map<string, Date> {
 }
 
 describe('PostProducer', () => {
+  const crash = jest.fn();
+  const crashService: ICrashService = { crash };
   const fakeFetch = jest.fn();
   const fakeSnowballRssService: ISnowballRssService = {
     fetch: fakeFetch,
@@ -36,6 +39,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -43,10 +47,7 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: [],
-      });
+      expect(result).toEqual([]);
     });
 
     it('ignores old post in fetch result when few latest existing posts are deleted', async () => {
@@ -54,6 +55,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -61,10 +63,7 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: [],
-      });
+      expect(result).toEqual([]);
     });
   });
 
@@ -76,6 +75,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -83,10 +83,7 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: posts.slice(15),
-      });
+      expect(result).toEqual(posts.slice(15));
     });
 
     it('update old post links after producing new posts', async () => {
@@ -95,6 +92,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -113,6 +111,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -120,10 +119,7 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: posts.slice(15),
-      });
+      expect(result).toEqual(posts.slice(15));
     });
 
     it('ignores old post in fetch result', async () => {
@@ -134,6 +130,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -141,10 +138,7 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: [posts[15], posts[16]],
-      });
+      expect(result).toEqual([posts[15], posts[16]]);
     });
   });
 
@@ -155,6 +149,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -162,25 +157,37 @@ describe('PostProducer', () => {
       );
       const result = await postProducer.produceNew('user-id', { isFirstRun: true });
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual({
-        isOk: true,
-        value: [],
-      });
+      expect(result).toEqual([]);
       expect(myOldPostLinks).toEqual(postsToOldPostLinks(receivedPosts));
     });
   });
 
   describe('when there is error during fetching', () => {
-    it('forward error', async () => {
-      const err = Result.err({ a: 1, b: 2 });
+    it('returns empty array for network error', async () => {
+      const err = Result.err({ kind: 'network', error: new Error('network error') });
       fakeFetch.mockResolvedValue(err);
       const postProducer = new PostProducer({
+        crashService,
         logger: fakeLogger,
         snowballRssService: fakeSnowballRssService,
       });
       const result = await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(result).toEqual(err);
+      expect(result).toEqual([]);
+      expect(crash).not.toHaveBeenCalled();
+    });
+
+    it('crashs for parsing error', async () => {
+      const err = Result.err({ kind: 'parse', error: new Error('network error') });
+      fakeFetch.mockResolvedValue(err);
+      const postProducer = new PostProducer({
+        crashService,
+        logger: fakeLogger,
+        snowballRssService: fakeSnowballRssService,
+      });
+      await postProducer.produceNew('user-id');
+      expect(fakeFetch).toHaveBeenCalledWith('user-id');
+      expect(crash).toHaveBeenCalled();
     });
   });
 
@@ -192,6 +199,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
+          crashService,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
