@@ -8,7 +8,7 @@ interface IScheduler {
 export type WorkResult = {
   shouldContinue: boolean;
 };
-export type ScheduledWork = () => Promise<WorkResult> | WorkResult;
+export type ScheduledWork = (runCount: number) => Promise<WorkResult> | WorkResult;
 /**
  * Why scheduler stops. It will not be called if the scheduler is stopped.
  * "failed" means scheduleWork return a promise that is rejected.
@@ -55,7 +55,7 @@ export class Scheduler implements IScheduler {
       this.timer = setTimeout(async () => {
         try {
           this.beforeRun && this.beforeRun(runCount);
-          const workResult = await this.scheduledWork();
+          const workResult = await this.scheduledWork(runCount);
           resolve(workResult);
         } catch (e) {
           this.logger.error(
@@ -85,7 +85,7 @@ export class Scheduler implements IScheduler {
   async start(): Promise<void> {
     if (this.immediate) {
       this.beforeRun && this.beforeRun(0);
-      const workResult = await this.scheduledWork();
+      const workResult = await this.scheduledWork(0);
       if (!workResult.shouldContinue) {
         this.onStop && this.onStop('workResult');
         return;
