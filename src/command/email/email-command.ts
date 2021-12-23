@@ -29,7 +29,7 @@ async function handler(args: CliArgs): Promise<void> {
   }
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
-  const logger = new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
+  const logger = new Logger({ dirname: path.join(repoRoot(), 'logs', 'app') });
   rssHubService.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
