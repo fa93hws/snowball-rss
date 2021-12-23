@@ -26,10 +26,11 @@ export class PostProducer {
   }
 
   private findNewPosts(posts: Post[]): Post[] {
-    posts.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
+    const clone = [...posts];
+    clone.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
     const newPosts: Post[] = [];
     while (true) {
-      const latestPost = posts.pop();
+      const latestPost = clone.pop();
       if (latestPost == null || this.oldPostLinks.has(latestPost.link)) {
         break;
       }
@@ -52,7 +53,15 @@ export class PostProducer {
     }
   }
 
-  async produceNew(snowballUser: string): Promise<Result.Result<Post[], FetchError>> {
+  async produceNew(
+    snowballUser: string,
+    options: {
+      // oldPostLinks would be empty on first run
+      // So we will use the result for the first run to update it.
+      // That means these result should not be considered as new posts
+      isFirstRun?: boolean;
+    } = {},
+  ): Promise<Result.Result<Post[], FetchError>> {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       return Result.err(fetchResult.error);
@@ -67,10 +76,12 @@ export class PostProducer {
     const newPosts = this.findNewPosts(message.posts);
     for (const newPost of newPosts) {
       this.oldPostLinks.set(newPost.link, newPost.publishedTime);
-      this.logger.info('found new post, push to queue, post is');
-      this.logger.info(newPost);
+      if (!options.isFirstRun) {
+        this.logger.info('found new post, push to queue, post is');
+        this.logger.info(newPost);
+      }
     }
     this.maybeRemoveSomeOldPostLinks();
-    return Result.ok(newPosts);
+    return options.isFirstRun ? Result.ok([]) : Result.ok(newPosts);
   }
 }

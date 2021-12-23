@@ -148,6 +148,28 @@ describe('PostProducer', () => {
     });
   });
 
+  describe('when it is first run', () => {
+    it('returns empty array and update old posts link', async () => {
+      const receivedPosts = posts.slice(10);
+      const myOldPostLinks = new Map<string, Date>();
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      const postProducer = new PostProducer(
+        {
+          logger: fakeLogger,
+          snowballRssService: fakeSnowballRssService,
+        },
+        { oldPostLinks: myOldPostLinks },
+      );
+      const result = await postProducer.produceNew('user-id', { isFirstRun: true });
+      expect(fakeFetch).toHaveBeenCalledWith('user-id');
+      expect(result).toEqual({
+        isOk: true,
+        value: [],
+      });
+      expect(myOldPostLinks).toEqual(postsToOldPostLinks(receivedPosts));
+    });
+  });
+
   describe('when there is error during fetching', () => {
     it('forward error', async () => {
       const err = Result.err({ a: 1, b: 2 });

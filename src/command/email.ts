@@ -54,8 +54,10 @@ async function handler(args: CliArgs): Promise<void> {
     });
   }
 
-  async function scheduledWork(): Promise<WorkResult> {
-    const newPostsResult = await postProducer.produceNew(envVars.snowballUserId);
+  async function scheduledWork(runCount: number): Promise<WorkResult> {
+    const newPostsResult = await postProducer.produceNew(envVars.snowballUserId, {
+      isFirstRun: runCount === 0,
+    });
     if (!newPostsResult.isOk) {
       if (newPostsResult.error.kind === 'parse') {
         await mailService.send({

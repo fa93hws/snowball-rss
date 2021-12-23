@@ -34,6 +34,7 @@ describe('scheduler', () => {
       scheduler.start();
       await flushNPromises(5);
       expect(scheduledWork).toHaveBeenCalledTimes(1);
+      expect(scheduledWork).toHaveBeenCalledWith(0);
       expect(onStop).toHaveBeenCalledWith('workResult');
     });
 
@@ -61,6 +62,7 @@ describe('scheduler', () => {
       expect(scheduledWork).not.toHaveBeenCalled();
       jest.advanceTimersByTime(2);
       expect(scheduledWork).toHaveBeenCalledTimes(1);
+      expect(scheduledWork).toHaveBeenCalledWith(0);
     });
 
     it('will continue if work result shows it can continue', async () => {
@@ -83,6 +85,8 @@ describe('scheduler', () => {
       jest.advanceTimersByTime(200);
       expect(scheduledWork).toHaveBeenCalledTimes(2);
       expect(onStop).not.toHaveBeenCalled();
+      expect(scheduledWork).toHaveBeenCalledWith(0);
+      expect(scheduledWork).toHaveBeenCalledWith(1);
     });
 
     it('stops when result indicates it can not continue', async () => {
