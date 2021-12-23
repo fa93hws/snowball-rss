@@ -1,9 +1,8 @@
 import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
-import { rssHubService } from '@services/rss/rsshub-service';
 import { MailService } from '@services/mail-service';
-import { repoRoot } from '@utils/path';
+import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
@@ -27,9 +26,15 @@ async function handler(args: CliArgs): Promise<void> {
   if (args.doNotRun) {
     return;
   }
+  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+  logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
-  const logger = new Logger({ dirname: path.join(repoRoot(), 'logs', 'app') });
+  /**
+   * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
+   * so that we can config which env files we want to use.
+   */
+  const { rssHubService } = await import('@services/rss/rsshub-service');
   rssHubService.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
@@ -120,6 +125,7 @@ export const commandModule: CommandModule<{}, CliArgs> = {
       .option('dotEnvFile', {
         type: 'string',
         describe: 'path to .env file',
+        default: '.env',
       })
       .option('doNotRun', {
         type: 'boolean',

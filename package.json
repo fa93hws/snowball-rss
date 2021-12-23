@@ -10,7 +10,7 @@
     "format": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",
-    "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub"
+    "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub --external:puppeteer"
   },
   "author": "",
   "license": "ISC",
