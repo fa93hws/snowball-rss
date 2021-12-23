@@ -1,8 +1,7 @@
 import type { ICrashService } from '@services/crash-service';
 import type { ILogger } from '@services/logging-service';
 import type { Post } from '@services/rss/snowball/message';
-import type { FetchError, ISnowballRssService } from '@services/rss/snowball/service';
-import { Result } from '@utils/result';
+import type { ISnowballRssService } from '@services/rss/snowball/service';
 
 export type PostWithScreenshot = Post & {
   screenshot?: {

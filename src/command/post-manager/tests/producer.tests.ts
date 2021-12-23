@@ -185,7 +185,7 @@ describe('PostProducer', () => {
         logger: fakeLogger,
         snowballRssService: fakeSnowballRssService,
       });
-      const result = await postProducer.produceNew('user-id');
+      await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
       expect(crash).toHaveBeenCalled();
     });
