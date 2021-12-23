@@ -2,14 +2,16 @@ import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
-import { Mail, MailService } from '@services/mail-service';
+import type { Mail} from '@services/mail-service';
+import { MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import { PostProducer } from './post-producer';
 import { postToMail } from './convert-post';
 import { readVarsFromEnvs } from './read-envs';
-import { Scheduler, WorkResult } from './scheduler';
+import type { WorkResult } from './scheduler';
+import { Scheduler } from './scheduler';
 
 type CliArgs = {
   sendTestEmail: boolean;

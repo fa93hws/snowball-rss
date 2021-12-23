@@ -1,6 +1,6 @@
 import { Result } from '@utils/result';
-import { IRssHubService } from '@services/rss/rsshub-service';
-import { ILogger } from '@services/logging-service';
+import type { IRssHubService } from '@services/rss/rsshub-service';
+import type { ILogger } from '@services/logging-service';
 import { Message } from './message';
 
 export type FetchError = {

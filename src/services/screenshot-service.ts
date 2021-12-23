@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { ILogger } from '@services/logging-service';
+import type { ILogger } from '@services/logging-service';
 import { Result } from '@utils/result';
 
 export interface IScreenShotService {

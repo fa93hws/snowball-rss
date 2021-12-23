@@ -22,6 +22,7 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': ['error'],
     '@typescript-eslint/no-shadow': ['error'],
     '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/consistent-type-imports': 'error',
 
     'no-console': 'error',
     eqeqeq: ['error', 'smart'],

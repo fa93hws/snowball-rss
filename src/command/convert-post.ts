@@ -1,8 +1,8 @@
-import { ILogger } from '@services/logging-service';
+import type { ILogger } from '@services/logging-service';
 import type { Post } from '@services/rss/snowball/message';
-import { IScreenShotService } from '@services/screenshot-service';
+import type { IScreenShotService } from '@services/screenshot-service';
 import { EOL } from 'os';
-import { Mail } from '@services/mail-service';
+import type { Mail } from '@services/mail-service';
 
 export async function postToMail(
   post: Post,
