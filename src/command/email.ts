@@ -3,10 +3,10 @@ import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
 import { MailService } from '@services/mail-service';
-import { GlobalMutable } from '@utils/global';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
+import { PostProducer } from './post-producer';
 import { postToMail } from './convert-post';
 import { readVarsFromEnvs } from './read-envs';
 import { Scheduler, WorkResult } from './scheduler';
@@ -28,8 +28,10 @@ async function handler(args: CliArgs): Promise<void> {
   const logger = new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
   const snowballRssService = new SnowballRssService(rssHubService, logger);
   const screenShotService = new ScreenShotService(logger);
-  const globalMutable = new GlobalMutable(logger);
-
+  const postProducer = new PostProducer({
+    logger,
+    snowballRssService,
+  });
   rssHubService.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
@@ -53,40 +55,27 @@ async function handler(args: CliArgs): Promise<void> {
   }
 
   async function scheduledWork(): Promise<WorkResult> {
-    const fetchResult = await snowballRssService.fetch(envVars.snowballUserId);
-    if (!fetchResult.isOk) {
-      if (fetchResult.error.kind === 'parse') {
+    const newPostsResult = await postProducer.produceNew(envVars.snowballUserId);
+    if (!newPostsResult.isOk) {
+      if (newPostsResult.error.kind === 'parse') {
         await mailService.send({
           to: envVars.adminEmailAdress,
           subject: 'snowball-rss is down due to parsing error',
-          text: fetchResult.error.message,
+          text: newPostsResult.error.message,
         });
         return { shouldContinue: false };
       }
       return { shouldContinue: true };
     }
-
-    logger.info('fetch success');
-    const message = fetchResult.value;
-    logger.debug(`got message for user ${envVars.snowballUserId}`);
-    logger.debug({
-      time: message.updateTime,
-      posts: message.posts.map((p) => p.title.substring(0, 30)),
-    });
+    const newPosts = newPostsResult.value;
+    if (newPosts.length === 0) {
+      logger.info('no new posts, nothing to send');
+      return { shouldContinue: true };
+    }
     const mailsToSend = await Promise.all(
-      message.posts
-        .filter(
-          (post) =>
-            globalMutable.lastUpdateTime != null &&
-            post.publishedTime > globalMutable.lastUpdateTime,
-        )
-        .map((post) => postToMail(post, envVars.subscribers, logger, screenShotService)),
+      newPosts.map((post) => postToMail(post, envVars.subscribers, logger, screenShotService)),
     );
     await Promise.all(mailsToSend.map((mail) => mailService.send(mail)));
-    if (mailsToSend.length === 0) {
-      logger.info('no new posts, nothing to send');
-    }
-    globalMutable.setLastUpdateTime(message.updateTime);
     return { shouldContinue: true };
   }
 
