@@ -45,7 +45,7 @@ foo@gmail.com, bar@hotmail.com, foobar@126.com
 
 ## 运行程序
 
-`node index.js` 即可。也可提供一些命令行参数
+`node index.js by-email` 即可。也可提供一些命令行参数
 
 ### --send-test-email (默认值: false)
 
