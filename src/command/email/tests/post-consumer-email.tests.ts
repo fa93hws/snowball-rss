@@ -1,10 +1,9 @@
 import { fakeLogger } from '@services/fake/logging-service';
-import type { IScreenShotService } from '@services/screenshot-service';
 import { Post } from '@services/rss/snowball/message';
 import { Result } from '@utils/result';
-import { PostConsumerForEmail } from '../post-consumer-email';
 import type { IMailService } from '@services/mail-service';
-import type { PostWithScreenshot } from 'src/command/post-manager/producer';
+import type { PostWithScreenshot } from '../../post-manager/producer';
+import { PostConsumerForEmail } from '../post-consumer-email';
 
 describe('PostConsumerForEmail', () => {
   const mockSendMail = jest.fn();

@@ -6,12 +6,12 @@ import { MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
+import type { PostWithScreenshot } from '../post-manager/producer';
 import { PostProducer } from '../post-manager/producer';
 import { PostConsumerForEmail } from './post-consumer-email';
 import { readVarsFromEnvs } from './read-envs';
 import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
-import type { Post } from '@services/rss/snowball/message';
 import { PostConsumerScreenshot } from '../post-manager/consumer-screenshot';
 
 type CliArgs = {
@@ -59,7 +59,7 @@ async function handler(args: CliArgs): Promise<void> {
     envVars.subscribers,
   );
 
-  const postQueue: Post[] = [];
+  const postQueue: PostWithScreenshot[] = [];
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
     await mailService.send({
