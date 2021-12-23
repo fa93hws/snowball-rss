@@ -1,16 +1,8 @@
+import type { ICrashService } from '@services/crash-service';
 import type { ILogger } from '@services/logging-service';
 import type { Post } from '@services/rss/snowball/message';
 import type { FetchError, ISnowballRssService } from '@services/rss/snowball/service';
 import { Result } from '@utils/result';
-
-export interface IPostProducer {
-  produceNew(
-    snowballUser: string,
-    options?: {
-      isFirstRun?: boolean;
-    },
-  ): Promise<Result.Result<Post[], FetchError>>;
-}
 
 export type PostWithScreenshot = Post & {
   screenshot?: {
@@ -19,19 +11,34 @@ export type PostWithScreenshot = Post & {
   };
 };
 
+export interface IPostProducer {
+  produceNew(
+    snowballUser: string,
+    options?: {
+      isFirstRun?: boolean;
+    },
+  ): Promise<PostWithScreenshot[]>;
+}
+
 export class PostProducer implements IPostProducer {
   private readonly logger: ILogger;
   private readonly snowballRssService: ISnowballRssService;
+  private readonly crashService: ICrashService;
   // key: link of the post. value: publish date of the post
   private readonly oldPostLinks: Map<string, Date>;
   private readonly maxOldPostKeptCount: number;
 
   constructor(
-    services: { logger: ILogger; snowballRssService: ISnowballRssService },
+    services: {
+      logger: ILogger;
+      snowballRssService: ISnowballRssService;
+      crashService: ICrashService;
+    },
     options: { oldPostLinks?: Map<string, Date>; maxOldPostKeptCount?: number } = {},
   ) {
     this.logger = services.logger;
     this.snowballRssService = services.snowballRssService;
+    this.crashService = services.crashService;
     this.oldPostLinks = options.oldPostLinks ?? new Map<string, Date>();
     this.maxOldPostKeptCount = options.maxOldPostKeptCount ?? 100;
   }
@@ -77,10 +84,15 @@ export class PostProducer implements IPostProducer {
       // That means these result should not be considered as new posts
       isFirstRun?: boolean;
     } = {},
-  ): Promise<Result.Result<PostWithScreenshot[], FetchError>> {
+  ): Promise<PostWithScreenshot[]> {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
-      return Result.err(fetchResult.error);
+      if (fetchResult.error.kind === 'parse') {
+        return this.crashService.crash('parsing error: ' + fetchResult.error.message);
+      } else {
+        this.logger.error('fetch error: ' + fetchResult.error.message);
+        return [];
+      }
     }
     const message = fetchResult.value;
     this.logger.debug(`fetch success, got message for user ${snowballUser}`);
@@ -98,6 +110,6 @@ export class PostProducer implements IPostProducer {
       }
     }
     this.maybeRemoveSomeOldPostLinks();
-    return options.isFirstRun ? Result.ok([]) : Result.ok(newPosts);
+    return options.isFirstRun ? [] : newPosts;
   }
 }

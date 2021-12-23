@@ -3,6 +3,7 @@ import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
 import { MailService } from '@services/mail-service';
+import { repoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
@@ -13,6 +14,7 @@ import { readVarsFromEnvs } from './read-envs';
 import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
 import { PostConsumerScreenshot } from '../post-manager/consumer-screenshot';
+import { EmailCrashService } from '@services/crash-service';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -27,7 +29,6 @@ async function handler(args: CliArgs): Promise<void> {
   }
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
-  const repoRoot = path.join(__dirname, '..', '..');
   const logger = new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
   rssHubService.init({
     CACHE_TYPE: null,
@@ -43,7 +44,9 @@ async function handler(args: CliArgs): Promise<void> {
     },
     logger,
   );
+  const crashService = new EmailCrashService({ logger, mailService }, envVars.adminEmailAdress);
   const postProducer = new PostProducer({
+    crashService,
     logger,
     snowballRssService,
   });
@@ -70,21 +73,10 @@ async function handler(args: CliArgs): Promise<void> {
   }
 
   async function scheduledProducer(runCount: number): Promise<WorkResult> {
-    const newPostsResult = await postProducer.produceNew(envVars.snowballUserId, {
+    const newPosts = await postProducer.produceNew(envVars.snowballUserId, {
       isFirstRun: runCount === 0,
     });
-    if (!newPostsResult.isOk) {
-      if (newPostsResult.error.kind === 'parse') {
-        await mailService.send({
-          to: envVars.adminEmailAdress,
-          subject: 'snowball-rss is down due to parsing error',
-          text: newPostsResult.error.message,
-        });
-        return { shouldContinue: false };
-      }
-      return { shouldContinue: true };
-    }
-    postQueue.push(...newPostsResult.value);
+    postQueue.push(...newPosts);
     postConsumerForScreenshot.consume(postQueue);
     return { shouldContinue: true };
   }

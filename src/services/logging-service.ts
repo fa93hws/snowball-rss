@@ -2,6 +2,9 @@ import winston from 'winston';
 import type { transport as Transport } from 'winston';
 
 export interface ILogger {
+  logFileDirname: string;
+  logFileName: string;
+
   info(message: any): void;
   error(message: any): void;
   warn(message: any): void;
@@ -9,16 +12,19 @@ export interface ILogger {
   debug(message: any): void;
 }
 
-export class Logger {
+export class Logger implements ILogger {
   private readonly logger: winston.Logger;
+  readonly logFileDirname: string;
+  readonly logFileName = 'combined.log';
 
   constructor({ dirname, enableConsole = true }: { dirname: string; enableConsole?: boolean }) {
+    this.logFileDirname = dirname;
     const transports: Transport[] = [];
     if (enableConsole) {
       transports.push(new winston.transports.Console());
     }
     transports.push(
-      new winston.transports.File({ dirname, filename: 'combined.log' }),
+      new winston.transports.File({ dirname, filename: this.logFileName }),
       new winston.transports.File({
         dirname,
         level: 'error',

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Logger', () => {
-  const logDir = path.join(__dirname, 'fixtures', 'logs');
+  const logDir = path.join(__dirname, 'fixtures', 'generated-logs');
 
   beforeAll(async () => {
     if (fs.existsSync(logDir)) {
