@@ -59,7 +59,7 @@ export class Scheduler implements IScheduler {
           resolve(workResult);
         } catch (e) {
           this.logger.error(
-            `scheduler "${this.name}" have to stop due to error in scheduled work, error is:`,
+            `scheduler '${this.name}' have to stop due to error in scheduled work, error is:`,
           );
           this.logger.error(e);
           this.onStop && this.onStop('failed');
@@ -74,11 +74,11 @@ export class Scheduler implements IScheduler {
   private async scheduleRecursively(runCount: number): Promise<void> {
     const result = await this.schedule(runCount);
     if (result.shouldContinue) {
-      this.logger.verbose(`schedluer "${this.name}" can continue`);
+      this.logger.verbose(`schedluer '${this.name}' can continue`);
       this.scheduleRecursively(runCount + 1);
     } else {
       this.onStop && this.onStop('workResult');
-      this.logger.info(`shceduler "${this.name}" will stop`);
+      this.logger.info(`shceduler '${this.name}' will stop`);
     }
   }
 
