@@ -7,7 +7,7 @@
 
 启动服务后，他会每隔一段时间获取雪球某用户动态（通过[RSSHUB](https://docs.rsshub.app/finance.html#xin-lang-cai-jing)支持)。如果有新动态，则会将新动态通过邮件发送给所有订阅者。
 
-# Use guide
+# User guide
 
 首先，惯例，安装依赖 `npm install`.
 

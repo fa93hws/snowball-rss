@@ -3,13 +3,13 @@ import { IRssHubService } from '@services/rss/rsshub-service';
 import { ILogger } from '@services/logging-service';
 import { Message } from './message';
 
-type FetchError = {
+export type FetchError = {
   kind: 'parse' | 'network';
   message: string;
 };
 
 export interface ISnowballRssService {
-  fetch(url: string): Promise<Result.Result<Message, FetchError>>;
+  fetch(uid: string): Promise<Result.Result<Message, FetchError>>;
 }
 
 export class SnowballRssService implements ISnowballRssService {
