@@ -2,16 +2,16 @@ import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
-import type { Mail } from '@services/mail-service';
 import { MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import { PostProducer } from './post-producer';
-import { postToMail } from './convert-post';
+import { PostConsumerForEmail } from './post-consumer-email';
 import { readVarsFromEnvs } from './read-envs';
 import type { WorkResult } from './scheduler';
 import { Scheduler } from './scheduler';
+import type { Post } from '@services/rss/snowball/message';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -28,16 +28,12 @@ async function handler(args: CliArgs): Promise<void> {
   const envVars = readVarsFromEnvs();
   const repoRoot = path.join(__dirname, '..', '..');
   const logger = new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
-  const snowballRssService = new SnowballRssService(rssHubService, logger);
-  const screenShotService = new ScreenShotService(logger);
-  const postProducer = new PostProducer({
-    logger,
-    snowballRssService,
-  });
   rssHubService.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
   });
+  const snowballRssService = new SnowballRssService(rssHubService, logger);
+  const screenshotService = new ScreenShotService(logger);
   const mailService = new MailService(
     {
       service: envVars.botEmailService,
@@ -46,7 +42,17 @@ async function handler(args: CliArgs): Promise<void> {
     },
     logger,
   );
+  const postProducer = new PostProducer({
+    logger,
+    snowballRssService,
+  });
+  const postConsumer = new PostConsumerForEmail({
+    logger,
+    screenshotService,
+    mailService,
+  });
 
+  const postQueue: Post[] = [];
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
     await mailService.send({
@@ -56,7 +62,7 @@ async function handler(args: CliArgs): Promise<void> {
     });
   }
 
-  async function scheduledWork(runCount: number): Promise<WorkResult> {
+  async function scheduledProducer(runCount: number): Promise<WorkResult> {
     const newPostsResult = await postProducer.produceNew(envVars.snowballUserId, {
       isFirstRun: runCount === 0,
     });
@@ -71,28 +77,29 @@ async function handler(args: CliArgs): Promise<void> {
       }
       return { shouldContinue: true };
     }
-    const newPosts = newPostsResult.value;
-    if (newPosts.length === 0) {
-      logger.info('no new posts, nothing to send');
-      return { shouldContinue: true };
-    }
-    // We don't want to start lots of puppeteer in parrllel.
-    const mailsToSend: Mail[] = [];
-    for (const post of newPosts) {
-      mailsToSend.push(await postToMail(post, envVars.subscribers, logger, screenShotService));
-    }
-    await Promise.all(mailsToSend.map((mail) => mailService.send(mail)));
+    postQueue.push(...newPostsResult.value);
     return { shouldContinue: true };
   }
 
-  const scheduler = new Scheduler({
+  const producerScheduler = new Scheduler({
     intervalSecond: args.intervalSecond,
-    scheduledWork,
+    scheduledWork: scheduledProducer,
     logger,
-    name: 'the only one',
+    name: 'post producer',
     immediate: true,
   });
-  scheduler.start();
+  producerScheduler.start();
+
+  const consumerScheduler = new Scheduler({
+    intervalSecond: 10,
+    scheduledWork: async () => {
+      postConsumer.consume(postQueue, envVars.subscribers);
+      return { shouldContinue: true };
+    },
+    logger,
+    name: 'post consumer for email',
+  });
+  consumerScheduler.start();
 }
 
 export const commandModule: CommandModule<{}, CliArgs> = {
