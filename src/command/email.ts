@@ -2,7 +2,7 @@ import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import { ScreenShotService } from '@services/screenshot-service';
 import { rssHubService } from '@services/rss/rsshub-service';
-import { MailService } from '@services/mail-service';
+import { Mail, MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
@@ -74,9 +74,11 @@ async function handler(args: CliArgs): Promise<void> {
       logger.info('no new posts, nothing to send');
       return { shouldContinue: true };
     }
-    const mailsToSend = await Promise.all(
-      newPosts.map((post) => postToMail(post, envVars.subscribers, logger, screenShotService)),
-    );
+    // We don't want to start lots of puppeteer in parrllel.
+    const mailsToSend: Mail[] = [];
+    for (const post of newPosts) {
+      mailsToSend.push(await postToMail(post, envVars.subscribers, logger, screenShotService));
+    }
     await Promise.all(mailsToSend.map((mail) => mailService.send(mail)));
     return { shouldContinue: true };
   }
