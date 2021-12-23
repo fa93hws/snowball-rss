@@ -6,12 +6,13 @@ import { MailService } from '@services/mail-service';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
-import { PostProducer } from '../post-producer';
-import { PostConsumerForEmail } from '../post-consumer-email';
+import type { PostWithScreenshot } from '../post-manager/producer';
+import { PostProducer } from '../post-manager/producer';
+import { PostConsumerForEmail } from './post-consumer-email';
 import { readVarsFromEnvs } from './read-envs';
 import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
-import type { Post } from '@services/rss/snowball/message';
+import { PostConsumerScreenshot } from '../post-manager/consumer-screenshot';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -46,13 +47,19 @@ async function handler(args: CliArgs): Promise<void> {
     logger,
     snowballRssService,
   });
-  const postConsumer = new PostConsumerForEmail({
+  const postConsumerForScreenshot = new PostConsumerScreenshot({
     logger,
     screenshotService,
-    mailService,
   });
+  const postConsumerForEmail = new PostConsumerForEmail(
+    {
+      logger,
+      mailService,
+    },
+    envVars.subscribers,
+  );
 
-  const postQueue: Post[] = [];
+  const postQueue: PostWithScreenshot[] = [];
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
     await mailService.send({
@@ -78,6 +85,7 @@ async function handler(args: CliArgs): Promise<void> {
       return { shouldContinue: true };
     }
     postQueue.push(...newPostsResult.value);
+    postConsumerForScreenshot.consume(postQueue);
     return { shouldContinue: true };
   }
 
@@ -93,7 +101,7 @@ async function handler(args: CliArgs): Promise<void> {
   const consumerScheduler = new Scheduler({
     intervalSecond: 10,
     scheduledWork: async () => {
-      postConsumer.consume(postQueue, envVars.subscribers);
+      postConsumerForEmail.consume(postQueue);
       return { shouldContinue: true };
     },
     logger,
