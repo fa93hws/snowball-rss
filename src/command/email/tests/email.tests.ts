@@ -6,7 +6,7 @@ describe('commandModule', () => {
     const parser = yargs.command(commandModule).strict(true).help();
 
     const parsedArgs = await new Promise<object>((resolve) => {
-      parser.parse('--do-not-run', {}, (_, argv) => {
+      parser.parse('by-email --do-not-run', {}, (_, argv) => {
         resolve(argv);
       });
     });
