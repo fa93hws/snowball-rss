@@ -27,7 +27,7 @@ main() {
     exit 1
   fi
   local command="$1"
-  pushd > /dev/null "${REPO_ROOT}"
+  pushd "${REPO_ROOT}" >/dev/null
   case "${command}" in
     build)
       build_docker
