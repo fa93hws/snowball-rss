@@ -24,7 +24,7 @@ module.exports = {
 
   projects: [
     {
-      displayName: 'normal',
+      displayName: 'no-puppeteer',
       testMatch: ['**/tests/**/*.tests.ts', '!**/*.puppeteer.tests.ts'],
       ...config,
     },
