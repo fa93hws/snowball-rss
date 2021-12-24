@@ -25,6 +25,7 @@ export class PostProducer implements IPostProducer {
   private readonly crashService: ICrashService;
   // key: link of the post. value: publish date of the post
   private readonly oldPostLinks: Map<string, Date>;
+  private oldestPostDate: Date;
   private readonly maxOldPostKeptCount: number;
 
   constructor(
@@ -39,7 +40,8 @@ export class PostProducer implements IPostProducer {
     this.snowballRssService = services.snowballRssService;
     this.crashService = services.crashService;
     this.oldPostLinks = options.oldPostLinks ?? new Map<string, Date>();
-    this.maxOldPostKeptCount = options.maxOldPostKeptCount ?? 100;
+    this.maxOldPostKeptCount = options.maxOldPostKeptCount ?? 255;
+    this.oldestPostDate = this.findOldestPostDate();
   }
 
   // old date first, late date later.
@@ -47,16 +49,28 @@ export class PostProducer implements IPostProducer {
     return a.getTime() - b.getTime();
   }
 
+  private findOldestPostDate(): Date {
+    if (this.oldPostLinks.size === 0) {
+      return new Date(0);
+    }
+    const arr = Array.from(this.oldPostLinks.values());
+    arr.sort((a, b) => this.sortPostByDate(a, b));
+    return arr[0];
+  }
+
   private findNewPosts(posts: Post[]): Post[] {
     const clone = [...posts];
     clone.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
     const newPosts: Post[] = [];
     while (true) {
-      const latestPost = clone.pop();
-      if (latestPost == null || this.oldPostLinks.has(latestPost.link)) {
+      const post = clone.pop();
+      if (post == null) {
         break;
       }
-      newPosts.push(latestPost);
+      if (this.oldPostLinks.has(post.link) || post.publishedTime < this.oldestPostDate) {
+        continue;
+      }
+      newPosts.push(post);
     }
     newPosts.sort((a, b) => this.sortPostByDate(a.publishedTime, b.publishedTime));
     return newPosts;
@@ -77,12 +91,7 @@ export class PostProducer implements IPostProducer {
 
   async produceNew(
     snowballUser: string,
-    options: {
-      // oldPostLinks would be empty on first run
-      // So we will use the result for the first run to update it.
-      // That means these result should not be considered as new posts
-      isFirstRun?: boolean;
-    } = {},
+    options: { isFirstRun?: boolean } = {},
   ): Promise<PostWithScreenshot[]> {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
@@ -109,6 +118,11 @@ export class PostProducer implements IPostProducer {
       }
     }
     this.maybeRemoveSomeOldPostLinks();
+    /**
+     * oldPostLinks would be empty on first run
+     * So we will use the result for the first run to update it.
+     * That means these result should not be considered as new posts
+     */
     return options.isFirstRun ? [] : newPosts;
   }
 }
