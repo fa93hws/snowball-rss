@@ -1,32 +1,33 @@
 #!/usr/bin/env bash
+set -eu
+set -o pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
+source "${REPO_ROOT}/bin/_version.sh"
+
 get_image_name() {
-  pushd > /dev/null "${REPO_ROOT}"
   local version
-  version=$(cat package.json | jq -r .version)
-  popd > /dev/null
+  version=$(_get_version)
   echo "fa93hws/snowball-rss:${version}"
 }
 
 build_docker() {
-  pushd > /dev/null "${REPO_ROOT}"
   local image_name
   image_name=$(get_image_name)
   echo "Building image ${image_name}"
   docker build -t "${image_name}" .
-  popd > /dev/null
 }
 
 # $1 comand: build or publish
 main() {
-  local command="$1"
-  if [[ -z "${command}" ]]; then
+  if [[ "$#" == 0 ]]; then
     echo "Usage: $0 <command>"
     echo "  command: build or publish"
     exit 1
   fi
+  local command="$1"
+  pushd "${REPO_ROOT}" >/dev/null
   case "${command}" in
     build)
       build_docker
@@ -39,6 +40,7 @@ main() {
       exit 1
       ;;
   esac
+  popd > /dev/null
 }
 
 main "$@"
