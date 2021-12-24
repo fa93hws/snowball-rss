@@ -5,11 +5,11 @@
 
 # What is this
 
-启动服务后，他会每隔一段时间获取雪球某用户动态（通过[RSSHUB](https://docs.rsshub.app/finance.html#xin-lang-cai-jing)支持)。如果有新动态，则会将新动态通过邮件发送给所有订阅者。
+启动服务后，他会每隔一段时间获取雪球某用户动态（通过[RSSHUB](https://docs.rsshub.app/finance.html#xin-lang-cai-jing)支持)。如果有新动态，则进入网页截图，并通过邮件发送给所有订阅者。
 
 # How to run
 
-推荐使用 [docker](#with-docker)
+如果只是想使用它，推荐通过 [docker](#with-docker) 来运行。但是如果还需要一些调试或者魔改，那最好就[别用 docker](#without-docker) 了
 
 ## With docker
 
@@ -27,20 +27,22 @@ docker pull ghcr.io/fa93hws/snowball-rss:latest
 
 ### 运行
 
-下载完之后，可以通过
+[下载](#下载镜像)之后，可以通过
 
 ```
-docker run -d --rm --env-file .env ghcr.io/fa93hws/snowball-rss [args]
+docker run -d --env-file .env ghcr.io/fa93hws/snowball-rss by-email [args]
 ```
 
 来运行，详细的 `docker run` 参数可以翻阅[官方文档](https://docs.docker.com/engine/reference/commandline/run/).
+
 示例命令行中
 
 - `--env-file .env` 表示读取 `.env` 的内容作为环境变量。使用方法可以参考[官方文档](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)；具体需要设置的环境变量见[设置环境变量](#设置环境变量)
+- `[args]` 为程序的[命令行参数](#程序参数)
 
 ### 设置环境变量
 
-创建一个`.env`文件，将(`sample.env`)[https://github.com/fa93hws/snowball-rss/blob/master/sample.env]的内容全部复制进去。然后设置成你自己的内容。
+创建一个`.env`文件，将[`sample.env`](https://github.com/fa93hws/snowball-rss/blob/master/sample.env)的内容全部复制进去。然后设置成你自己的内容。
 
 #### MAILER_SERVICE
 
@@ -72,13 +74,17 @@ foo@gmail.com, bar@hotmail.com, foobar@126.com
 
 ### 程序参数
 
-#### --send-test-email (默认值: false)
+#### --send-test-email
+
+可选，默认值为 `false`
 
 是否在一开始登陆发件邮箱时发送测试邮件。这可以确保邮箱登陆失败的时候立即知晓错误。
 
-#### --interval-second (默认值: 60)
+#### --interval-second
 
-多久刷新一次，单位为秒
+可选，默认值为 `60`
+
+完成一次爬虫行为后，等待多久进行下一次。
 
 ## Without docker
 
