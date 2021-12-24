@@ -21,9 +21,13 @@ build_docker() {
 
 # $1 comand: build or publish
 main() {
-  local comand="$1"
-  case
-  in
+  local command="$1"
+  if [[ -z "${command}" ]]; then
+    echo "Usage: $0 <command>"
+    echo "  command: build or publish"
+    exit 1
+  fi
+  case "${command}" in
     build)
       build_docker
       ;;
@@ -31,7 +35,7 @@ main() {
       docker push $(get_image_name)
       ;;
     *)
-      echo "Usage: $0 build|publish"
+      echo "unknown command: ${command}, must be build or publish"
       exit 1
       ;;
   esac
