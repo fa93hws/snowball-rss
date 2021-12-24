@@ -27,8 +27,8 @@ jobs:
         run: npm run format
       - name: Run typecheck
         run: npm run lint:ts
-      - name: Run unit test
-        run: npm run test:unit -- --coverage
+      - name: Run jest test excluding puppeteer
+        run: npm run test:normal -- --coverage
       - name: Report test coverage to codecov
         uses: codecov/codecov-action@v1
         with:
