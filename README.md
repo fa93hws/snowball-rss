@@ -9,25 +9,38 @@
 
 # How to run
 
+推荐使用 [docker](#with-docker)
+
 ## With docker
+
+[安装 docker](https://docs.docker.com/get-docker)，如果有需要的话。
 
 ### 下载镜像
 
-https://github.com/fa93hws/snowball-rss/pkgs/container/snowball-rss
+镜像发布在[github](https://github.com/fa93hws/snowball-rss/pkgs/container/snowball-rss)上，可以通过
 
 ```
 docker pull ghcr.io/fa93hws/snowball-rss:latest
 ```
 
+来下载最新的镜像
+
 ### 运行
 
-## For developer
+下载完之后，可以通过
 
-clone 之后，首先，惯例，安装依赖 `npm install`.
+```
+docker run -d --rm --env-file .env ghcr.io/fa93hws/snowball-rss [args]
+```
 
-### 设置敏感环境变量
+来运行，详细的 `docker run` 参数可以翻阅[官方文档](https://docs.docker.com/engine/reference/commandline/run/).
+示例命令行中
 
-创建一个`.env`文件，将`sample.env`的内容全部复制进去。然后设置成你自己的内容。
+- `--env-file .env` 表示读取 `.env` 的内容作为环境变量。使用方法可以参考[官方文档](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)；具体需要设置的环境变量见[设置环境变量](#设置环境变量)
+
+### 设置环境变量
+
+创建一个`.env`文件，将(`sample.env`)[https://github.com/fa93hws/snowball-rss/blob/master/sample.env]的内容全部复制进去。然后设置成你自己的内容。
 
 #### MAILER_SERVICE
 
@@ -57,9 +70,7 @@ foo@gmail.com, bar@hotmail.com, foobar@126.com
 
 关注的用户的 ID，可以从雪球用户的个人页面的网址中取得。比如 https://xueqiu.com/u/1334706236 是 `1334706236`
 
-### 运行程序
-
-`node index.js by-email` 即可。也可提供一些命令行参数
+### 程序参数
 
 #### --send-test-email (默认值: false)
 
@@ -68,3 +79,11 @@ foo@gmail.com, bar@hotmail.com, foobar@126.com
 #### --interval-second (默认值: 60)
 
 多久刷新一次，单位为秒
+
+## Without docker
+
+clone 之后，首先，惯例，安装依赖 `npm install`.
+
+### 运行程序
+
+`node index.js by-email` 即可。也可提供一些命令行参数
