@@ -222,7 +222,7 @@ describe('PostProducer', () => {
   });
 
   describe('cleaning', () => {
-    it('clean oldPostLinks when it has too many records', async () => {
+    it('clean half oldPostLinks when it has too many records', async () => {
       const oldPostLinks = postsToOldPostLinks(posts.slice(5, 15));
       const receivedPosts = posts.slice(10);
       const cloneOfOldPostLinks = new Map(oldPostLinks);
@@ -237,7 +237,7 @@ describe('PostProducer', () => {
       );
       await postProducer.produceNew('user-id');
       expect(fakeFetch).toHaveBeenCalledWith('user-id');
-      expect(cloneOfOldPostLinks).toEqual(postsToOldPostLinks(posts.slice(8)));
+      expect(cloneOfOldPostLinks).toEqual(postsToOldPostLinks(posts.slice(14)));
     });
   });
 });
