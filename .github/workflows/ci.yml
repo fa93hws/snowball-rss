@@ -11,8 +11,8 @@ on:
       - edited
 
 jobs:
-  ci-test:
-    name: CI-Test
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -38,8 +38,8 @@ jobs:
       - name: Run esbuild
         run: npm run build
 
-  ci-build:
-    name: CI-Build
+  docker:
+    name: Docker
     runs-on: ubuntu-latest
 
     steps:
@@ -48,10 +48,13 @@ jobs:
         run: npm ci
       - name: Run Docker build
         run: npm run build:docker
+        if: ${{ github.event_name == 'published' }}
       - name: Login to Docker Hub
         uses: docker/login-action@v1
+        if: ${{ github.event_name == 'published' }}
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Publish image
+        if: ${{ github.event_name == 'published' }}
         run: npm run publish:docker
