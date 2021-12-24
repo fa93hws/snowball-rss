@@ -53,6 +53,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run npm
         run: npm ci
+      - name: Run esbuild
+        run: npm run build
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v3
