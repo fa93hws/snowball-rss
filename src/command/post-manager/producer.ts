@@ -26,6 +26,7 @@ export class PostProducer implements IPostProducer {
   // key: link of the post. value: publish date of the post
   private readonly oldPostLinks: Map<string, Date>;
   private oldestPostDate: Date;
+  // when full, half of the old post links will be removed
   private readonly maxOldPostKeptCount: number;
 
   constructor(
@@ -80,10 +81,10 @@ export class PostProducer implements IPostProducer {
     if (this.oldPostLinks.size <= this.maxOldPostKeptCount) {
       return;
     }
-    const deleteCount = this.oldPostLinks.size - this.maxOldPostKeptCount;
+    const numToRemove = this.oldPostLinks.size - Math.floor(this.maxOldPostKeptCount / 2);
     const arr = Array.from(this.oldPostLinks);
     arr.sort((a, b) => this.sortPostByDate(a[1], b[1]));
-    const linkToDelete = arr.slice(0, deleteCount).map((a) => a[0]);
+    const linkToDelete = arr.slice(0, numToRemove).map((a) => a[0]);
     for (const link of linkToDelete) {
       this.oldPostLinks.delete(link);
     }
