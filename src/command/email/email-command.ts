@@ -26,7 +26,7 @@ type CliArgs = {
   doNotRun: boolean;
 };
 
-export function startProducer(params: {
+export async function startProducer(params: {
   intervalSecond: number;
   snowballUserId: string;
   adminEmailAdress: string;
@@ -34,14 +34,24 @@ export function startProducer(params: {
   services: {
     logger: ILogger;
     mailService: IMailService;
-    rssHubService: IRssHubService;
     // for stubbing
+    rssHubService?: IRssHubService;
     screenshotService?: IScreenShotService;
   };
 }) {
   const { intervalSecond, snowballUserId, adminEmailAdress, postQueue, services } = params;
   const { logger, mailService } = services;
-  const snowballRssService = new SnowballRssService(services.rssHubService, logger);
+  /**
+   * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
+   * so that we can config which env files we want to use.
+   */
+  const rssHubService =
+    services?.rssHubService ?? (await import('@services/rss/rsshub-service')).rssHubService;
+  rssHubService.init({
+    CACHE_TYPE: null,
+    titleLengthLimit: 65535,
+  });
+  const snowballRssService = new SnowballRssService(rssHubService, logger);
   const screenshotService = services.screenshotService ?? new ScreenShotService(logger);
   const crashService = new EmailCrashService({ logger, mailService }, adminEmailAdress);
   const postProducer = new PostProducer({
@@ -54,7 +64,7 @@ export function startProducer(params: {
     screenshotService,
   });
 
-  async function scheduledProducerWork(runCount: number): Promise<WorkResult> {
+  async function scheduledWork(runCount: number): Promise<WorkResult> {
     const newPosts = await postProducer.produceNew(snowballUserId, {
       isFirstRun: runCount === 0,
     });
@@ -64,8 +74,8 @@ export function startProducer(params: {
   }
 
   const producerScheduler = new Scheduler({
-    intervalSecond: intervalSecond,
-    scheduledWork: scheduledProducerWork,
+    intervalSecond,
+    scheduledWork,
     logger,
     name: 'post producer',
     immediate: true,
@@ -81,15 +91,6 @@ async function handler(args: CliArgs): Promise<void> {
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
-  /**
-   * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
-   * so that we can config which env files we want to use.
-   */
-  const { rssHubService } = await import('@services/rss/rsshub-service');
-  rssHubService.init({
-    CACHE_TYPE: null,
-    titleLengthLimit: 65535,
-  });
   const mailService = new MailService(
     {
       service: envVars.botEmailService,
@@ -124,7 +125,6 @@ async function handler(args: CliArgs): Promise<void> {
     services: {
       logger,
       mailService,
-      rssHubService,
     },
   });
 
