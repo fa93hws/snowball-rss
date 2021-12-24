@@ -46,8 +46,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Run npm
         run: npm ci
-      - name: Print event name
-        run: echo ${{ github.event_name }} && echo ${{ github.event_name == 'release' }}
+      - name: Print info
+        run: echo ${{ github.event_name }} && echo ${{ github.ref_type }} && echo ${{ github.ref_name }}
       - name: Run Docker build
         run: npm run build:docker
       - name: Login to Docker Hub
