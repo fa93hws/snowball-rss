@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:unit": "jest --ci --selectProjects=unit",
+    "test:normal": "jest --ci --selectProjects=normal",
     "test:puppeteer": "jest --ci --selectProjects=puppeteer",
     "format": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
