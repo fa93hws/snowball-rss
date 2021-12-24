@@ -4,4 +4,4 @@ RUN apk add --no-cache git
 WORKDIR /snowball-rss
 COPY . .
 RUN npm ci
-CMD ["node", "dist/snowball-rss.js"]
+ENTRYPOINT ["node", "dist/snowball-rss.js"]
