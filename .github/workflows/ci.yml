@@ -47,7 +47,7 @@ jobs:
       - name: Run npm
         run: npm ci
       - name: Print event name
-        run: echo ${{ github.event_name }}
+        run: echo ${{ github.event_name }} && echo ${{ github.event_name == 'release' }} && echo ${{ github.event_name == 'pull_request' }}
       - name: Run Docker build
         run: npm run build:docker
         if: ${{ github.event_name == 'release' }}
