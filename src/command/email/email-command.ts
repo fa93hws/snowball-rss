@@ -1,6 +1,9 @@
+import type { ILogger } from '@services/logging-service';
 import { Logger } from '@services/logging-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
+import type { IScreenShotService } from '@services/screenshot-service';
 import { ScreenShotService } from '@services/screenshot-service';
+import type { IMailService } from '@services/mail-service';
 import { MailService } from '@services/mail-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
@@ -14,6 +17,7 @@ import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
 import { PostConsumerScreenshot } from '../post-manager/consumer-screenshot';
 import { EmailCrashService } from '@services/crash-service';
+import type { IRssHubService } from '@services/rss/rsshub-service';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -22,34 +26,34 @@ type CliArgs = {
   doNotRun: boolean;
 };
 
-async function handler(args: CliArgs): Promise<void> {
-  if (args.doNotRun) {
-    return;
-  }
-  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
-  logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
-  dotenv.config({ path: args.dotEnvFile });
-  const envVars = readVarsFromEnvs();
+export async function startProducer(params: {
+  intervalSecond: number;
+  snowballUserId: string;
+  adminEmailAdress: string;
+  postQueue: PostWithScreenshot[];
+  services: {
+    logger: ILogger;
+    mailService: IMailService;
+    // for stubbing
+    rssHubService?: IRssHubService;
+    screenshotService?: IScreenShotService;
+  };
+}) {
+  const { intervalSecond, snowballUserId, adminEmailAdress, postQueue, services } = params;
+  const { logger, mailService } = services;
   /**
    * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
    * so that we can config which env files we want to use.
    */
-  const { rssHubService } = await import('@services/rss/rsshub-service');
+  const rssHubService =
+    services?.rssHubService ?? (await import('@services/rss/rsshub-service')).rssHubService;
   rssHubService.init({
     CACHE_TYPE: null,
     titleLengthLimit: 65535,
   });
   const snowballRssService = new SnowballRssService(rssHubService, logger);
-  const screenshotService = new ScreenShotService(logger);
-  const mailService = new MailService(
-    {
-      service: envVars.botEmailService,
-      user: envVars.botEmailAddress,
-      pass: envVars.botEmailPass,
-    },
-    logger,
-  );
-  const crashService = new EmailCrashService({ logger, mailService }, envVars.adminEmailAdress);
+  const screenshotService = services.screenshotService ?? new ScreenShotService(logger);
+  const crashService = new EmailCrashService({ logger, mailService }, adminEmailAdress);
   const postProducer = new PostProducer({
     crashService,
     logger,
@@ -59,6 +63,42 @@ async function handler(args: CliArgs): Promise<void> {
     logger,
     screenshotService,
   });
+
+  async function scheduledWork(runCount: number): Promise<WorkResult> {
+    const newPosts = await postProducer.produceNew(snowballUserId, {
+      isFirstRun: runCount === 0,
+    });
+    postQueue.push(...newPosts);
+    postConsumerForScreenshot.consume(postQueue);
+    return { shouldContinue: true };
+  }
+
+  const producerScheduler = new Scheduler({
+    intervalSecond,
+    scheduledWork,
+    logger,
+    name: 'post producer',
+    immediate: true,
+  });
+  producerScheduler.start();
+}
+
+async function handler(args: CliArgs): Promise<void> {
+  if (args.doNotRun) {
+    return;
+  }
+  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+  logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
+  dotenv.config({ path: args.dotEnvFile });
+  const envVars = readVarsFromEnvs();
+  const mailService = new MailService(
+    {
+      service: envVars.botEmailService,
+      user: envVars.botEmailAddress,
+      pass: envVars.botEmailPass,
+    },
+    logger,
+  );
   const postConsumerForEmail = new PostConsumerForEmail(
     {
       logger,
@@ -67,7 +107,6 @@ async function handler(args: CliArgs): Promise<void> {
     envVars.subscribers,
   );
 
-  const postQueue: PostWithScreenshot[] = [];
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
     await mailService.send({
@@ -77,23 +116,17 @@ async function handler(args: CliArgs): Promise<void> {
     });
   }
 
-  async function scheduledProducer(runCount: number): Promise<WorkResult> {
-    const newPosts = await postProducer.produceNew(envVars.snowballUserId, {
-      isFirstRun: runCount === 0,
-    });
-    postQueue.push(...newPosts);
-    postConsumerForScreenshot.consume(postQueue);
-    return { shouldContinue: true };
-  }
-
-  const producerScheduler = new Scheduler({
+  const postQueue: PostWithScreenshot[] = [];
+  startProducer({
     intervalSecond: args.intervalSecond,
-    scheduledWork: scheduledProducer,
-    logger,
-    name: 'post producer',
-    immediate: true,
+    snowballUserId: envVars.snowballUserId,
+    adminEmailAdress: envVars.adminEmailAdress,
+    postQueue,
+    services: {
+      logger,
+      mailService,
+    },
   });
-  producerScheduler.start();
 
   const consumerScheduler = new Scheduler({
     intervalSecond: 10,
