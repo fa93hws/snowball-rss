@@ -122,6 +122,36 @@ describe('PostProducer', () => {
       expect(result).toEqual(posts.slice(15));
     });
 
+    /**
+     * https://github.com/fa93hws/snowball-rss/issues/41
+     * old posts: 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+     * user post a new post: 17, 18. He post 15 and 16 as well, but it' under censorship
+     * so it's not displayed on the timeline.
+     * At the first fetch, we got 17 and 18 as new posts.
+     * At the next fetch, we got 15 and 16
+     * By accident, post 1 is in the timeline as well. It should not be regarded as new post.
+     */
+    it('produces new posts correctly if the new post is not the latest one', async () => {
+      const cloneOfOldPostLinks = new Map(oldPostLinks);
+      const postProducer = new PostProducer(
+        {
+          crashService,
+          logger: fakeLogger,
+          snowballRssService: fakeSnowballRssService,
+        },
+        { oldPostLinks: cloneOfOldPostLinks },
+      );
+      fakeFetch.mockResolvedValueOnce(
+        Result.ok(new Message(new Date(), [...posts.slice(7, 15), posts[17], posts[18]])),
+      );
+      await postProducer.produceNew('user-id');
+      fakeFetch.mockResolvedValueOnce(
+        Result.ok(new Message(new Date(), [posts[1], ...posts.slice(10, 19)])),
+      );
+      const newPosts = await postProducer.produceNew('user-id');
+      expect(newPosts).toEqual([posts[15], posts[16]]);
+    });
+
     it('ignores old post in fetch result', async () => {
       // user delete post 11,12,13,14, which is the latest existing posts
       // user posts 2 new posts, which is 15 and 16
