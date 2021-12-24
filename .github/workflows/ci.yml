@@ -17,8 +17,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-        with:
-          lfs: true
       - name: Run npm
         run: npm ci
       - name: Run Eslint
@@ -39,3 +37,14 @@ jobs:
         run: npm run test:puppeteer
       - name: Run esbuild
         run: npm run build
+
+  ci-build:
+    name: CI-Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run npm
+        run: npm ci
+      - name: Run Docker build
+        run: npm run build:docker
