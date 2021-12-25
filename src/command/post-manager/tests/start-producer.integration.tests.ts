@@ -1,5 +1,4 @@
 import { fakeLogger } from '@services/fake/logging-service';
-import type { IMailService } from '@services/notification/mail-service';
 import type { IRssHubService } from '@services/rss/rsshub-service';
 import type { IScreenShotService } from '@services/screenshot-service';
 import { Result } from '@utils/result';
