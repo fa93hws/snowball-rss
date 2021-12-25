@@ -1,11 +1,16 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { commandModule, deparactedCommandModule } from './command/email/email-command';
+import {
+  commandModule as emailCommand,
+  deparactedCommandModule,
+} from './command/email/email-command';
+import { commandModule as slackCommand } from './command/slack/slack';
 
 export function main() {
   yargs(hideBin(process.argv))
-    .command(commandModule)
+    .command(emailCommand)
     .command(deparactedCommandModule)
+    .command(slackCommand)
     .strict(true)
     .exitProcess(true)
     .demandCommand()
