@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import type { ILogger } from '@services/logging-service';
 import { Result } from '@utils/result';
+import type { ICrashService } from './crash-service';
 
 export interface IScreenShotService {
   capturePage(url: string): Promise<Result.Result<Buffer, unknown>>;
@@ -14,13 +15,28 @@ async function maybeCloseLoginModal(page: puppeteer.Page) {
 }
 
 export class ScreenShotService implements IScreenShotService {
-  constructor(private readonly logger: ILogger) {}
+  private readonly logger: ILogger;
+  private readonly crashService: ICrashService;
+
+  constructor(services: { logger: ILogger; crashService: ICrashService }) {
+    this.logger = services.logger;
+    this.crashService = services.crashService;
+  }
+
+  private async launchBrowser(): Promise<puppeteer.Browser> {
+    try {
+      const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      });
+      return browser;
+    } catch (e) {
+      return this.crashService.crash(e);
+    }
+  }
 
   async capturePage(url: string): Promise<Result.Result<Buffer, unknown>> {
     this.logger.verbose(`taking snapshot for ${url}`);
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
+    const browser = await this.launchBrowser();
     try {
       const page = await browser.newPage();
       await page.goto(url, {
