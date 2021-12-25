@@ -75,9 +75,9 @@ async function handler(args: CliArgs): Promise<void> {
   consumerScheduler.start();
 }
 
-export const commandModule: CommandModule<{}, CliArgs> = {
+export const emailCommand: CommandModule<{}, CliArgs> = {
   command: 'by-email',
-  describe: 'schedule fetching from snowball rss and notifiy subscribers',
+  describe: 'schedule fetching from snowball rss and notifiy subscribers by email',
   builder: (yargs) =>
     yargs
       .option('sendTestEmail', {
@@ -103,8 +103,8 @@ export const commandModule: CommandModule<{}, CliArgs> = {
   handler,
 };
 
-export const deparactedCommandModule: CommandModule<{}, CliArgs> = {
-  ...commandModule,
+export const deparactedEmailCommand: CommandModule<{}, CliArgs> = {
+  ...emailCommand,
   command: '$0',
   deprecated: 'use $0 email instead',
 };
