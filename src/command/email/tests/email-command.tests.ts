@@ -1,9 +1,9 @@
 import yargs from 'yargs';
-import { commandModule } from '../email-command';
+import { emailCommand } from '../email-command';
 
-describe('commandModule', () => {
+describe('emailCommandModule', () => {
   test('default values', async () => {
-    const parser = yargs.command(commandModule).strict(true).help();
+    const parser = yargs.command(emailCommand).strict(true).help();
 
     const parsedArgs = await new Promise<object>((resolve) => {
       parser.parse('by-email --do-not-run', {}, (_, argv) => {
@@ -13,6 +13,7 @@ describe('commandModule', () => {
     expect(parsedArgs).toMatchObject({
       intervalSecond: 60,
       sendTestEmail: false,
+      dotEnvFile: '.env',
     });
   });
 });
