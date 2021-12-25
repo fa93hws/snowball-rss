@@ -1,7 +1,8 @@
 import { Result } from '@utils/result';
-import type { ILogger } from './logging-service';
+import type { ILogger } from '../logging-service';
 import mailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import type { INotificationService } from './notification-service';
 
 export interface Mail {
   subject: string;

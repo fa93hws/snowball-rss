@@ -1,4 +1,4 @@
-import { MailService } from '../mail-service';
+import { MailService } from '../notification/mail-service';
 import mailer from 'nodemailer';
 import { fakeLogger } from '@services/fake/logging-service';
 

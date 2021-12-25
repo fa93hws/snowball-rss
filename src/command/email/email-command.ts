@@ -1,23 +1,15 @@
-import type { ILogger } from '@services/logging-service';
 import { Logger } from '@services/logging-service';
-import { SnowballRssService } from '@services/rss/snowball/service';
-import type { IScreenShotService } from '@services/screenshot-service';
-import { ScreenShotService } from '@services/screenshot-service';
-import type { IMailService } from '@services/mail-service';
-import { MailService } from '@services/mail-service';
+import { MailService } from '@services/notification/mail-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import type { PostWithScreenshot } from '../post-manager/producer';
-import { PostProducer } from '../post-manager/producer';
 import { PostConsumerForEmail } from './post-consumer-email';
 import { readVarsFromEnvs } from './read-envs';
-import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
-import { PostConsumerScreenshot } from '../post-manager/consumer-screenshot';
+import { startProducer } from '../post-manager/start-producer';
 import { EmailCrashService } from '@services/crash-service';
-import type { IRssHubService } from '@services/rss/rsshub-service';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -25,63 +17,6 @@ type CliArgs = {
   dotEnvFile?: string;
   doNotRun: boolean;
 };
-
-export async function startProducer(params: {
-  intervalSecond: number;
-  snowballUserId: string;
-  adminEmailAdress: string;
-  postQueue: PostWithScreenshot[];
-  services: {
-    logger: ILogger;
-    mailService: IMailService;
-    // for stubbing
-    rssHubService?: IRssHubService;
-    screenshotService?: IScreenShotService;
-  };
-}) {
-  const { intervalSecond, snowballUserId, adminEmailAdress, postQueue, services } = params;
-  const { logger, mailService } = services;
-  /**
-   * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
-   * so that we can config which env files we want to use.
-   */
-  const rssHubService =
-    services?.rssHubService ?? (await import('@services/rss/rsshub-service')).rssHubService;
-  rssHubService.init({
-    CACHE_TYPE: null,
-    titleLengthLimit: 65535,
-  });
-  const snowballRssService = new SnowballRssService(rssHubService, logger);
-  const screenshotService = services.screenshotService ?? new ScreenShotService(logger);
-  const crashService = new EmailCrashService({ logger, mailService }, adminEmailAdress);
-  const postProducer = new PostProducer({
-    crashService,
-    logger,
-    snowballRssService,
-  });
-  const postConsumerForScreenshot = new PostConsumerScreenshot({
-    logger,
-    screenshotService,
-  });
-
-  async function scheduledWork(runCount: number): Promise<WorkResult> {
-    const newPosts = await postProducer.produceNew(snowballUserId, {
-      isFirstRun: runCount === 0,
-    });
-    postQueue.push(...newPosts);
-    postConsumerForScreenshot.consume(postQueue);
-    return { shouldContinue: true };
-  }
-
-  const producerScheduler = new Scheduler({
-    intervalSecond,
-    scheduledWork,
-    logger,
-    name: 'post producer',
-    immediate: true,
-  });
-  producerScheduler.start();
-}
 
 async function handler(args: CliArgs): Promise<void> {
   if (args.doNotRun) {
@@ -99,6 +34,7 @@ async function handler(args: CliArgs): Promise<void> {
     },
     logger,
   );
+  const crashService = new EmailCrashService({ logger, mailService }, envVars.adminEmailAdress);
   const postConsumerForEmail = new PostConsumerForEmail(
     {
       logger,
@@ -120,11 +56,10 @@ async function handler(args: CliArgs): Promise<void> {
   startProducer({
     intervalSecond: args.intervalSecond,
     snowballUserId: envVars.snowballUserId,
-    adminEmailAdress: envVars.adminEmailAdress,
     postQueue,
     services: {
       logger,
-      mailService,
+      crashService,
     },
   });
 
