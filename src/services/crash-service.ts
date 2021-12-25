@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { ILogger } from './logging-service';
-import type { IMailService, Mail } from './mail-service';
+import type { IMailService, Mail } from './notification/mail-service';
 
 export interface ICrashService {
   crash(reason: any): Promise<never>;

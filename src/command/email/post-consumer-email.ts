@@ -1,5 +1,5 @@
 import type { ILogger } from '@services/logging-service';
-import type { IMailService, Mail } from '@services/mail-service';
+import type { IMailService, Mail } from '@services/notification/mail-service';
 import type { Post } from '@services/rss/snowball/message';
 import { EOL } from 'os';
 import type { PostWithScreenshot } from '../post-manager/producer';

@@ -1,6 +1,6 @@
 import { fakeLogger } from '@services/fake/logging-service';
 import type { ILogger } from '@services/logging-service';
-import type { IMailService } from '@services/mail-service';
+import type { IMailService } from '@services/notification/mail-service';
 import * as path from 'path';
 import { EmailCrashService } from '../crash-service';
 

@@ -1,7 +1,7 @@
 import { fakeLogger } from '@services/fake/logging-service';
 import { Post } from '@services/rss/snowball/message';
 import { Result } from '@utils/result';
-import type { IMailService } from '@services/mail-service';
+import type { IMailService } from '@services/notification/mail-service';
 import type { PostWithScreenshot } from '../../post-manager/producer';
 import { PostConsumerForEmail } from '../post-consumer-email';
 

@@ -1,11 +1,11 @@
 import { fakeLogger } from '@services/fake/logging-service';
-import type { IMailService } from '@services/mail-service';
 import type { IRssHubService } from '@services/rss/rsshub-service';
 import type { IScreenShotService } from '@services/screenshot-service';
 import { Result } from '@utils/result';
-import { startProducer } from '../email-command';
-import type { PostWithScreenshot } from '../../post-manager/producer';
+import { startProducer } from '../start-producer';
+import type { PostWithScreenshot } from '../producer';
 import { Post } from '@services/rss/snowball/message';
+import type { ICrashService } from '@services/crash-service';
 
 async function flushPromises(n: number) {
   for (let i = 0; i < n; i++) {
@@ -14,8 +14,9 @@ async function flushPromises(n: number) {
 }
 
 describe('startProducer', () => {
-  const fakeSendMail = jest.fn();
-  const mailService: IMailService = { send: fakeSendMail };
+  const fakeCrashService: ICrashService = {
+    crash: jest.fn(),
+  };
   const fakeCaptureScreenshot = jest.fn();
   const fakeScreenshotService: IScreenShotService = { capturePage: fakeCaptureScreenshot };
   const fakeRssRequest = jest.fn();
@@ -65,11 +66,10 @@ describe('startProducer', () => {
     startProducer({
       intervalSecond: 1,
       snowballUserId: 'snowballUserId',
-      adminEmailAdress: 'admin@EmailAdress',
       postQueue,
       services: {
         logger: fakeLogger,
-        mailService,
+        crashService: fakeCrashService,
         rssHubService: fakeRssHubService,
         screenshotService: fakeScreenshotService,
       },
@@ -164,7 +164,6 @@ describe('startProducer', () => {
 
   afterEach(() => {
     jest.clearAllTimers();
-    fakeSendMail.mockClear();
     fakeCaptureScreenshot.mockClear();
     fakeRssRequest.mockClear();
   });
