@@ -1,6 +1,4 @@
 import type { ICrashService } from '@services/crash-service';
-import fs from 'fs';
-import path from 'path';
 import puppeteer from 'puppeteer';
 import { ScreenShotService } from '../screenshot-service';
 import { fakeLogger } from '../fake/logging-service';
@@ -29,5 +27,6 @@ describe('screenshotService', () => {
     const p = service.capturePage('any-url');
     await expect(p).rejects.toThrowError('failed to launch browser');
     expect(fakeCrash).toHaveBeenCalled();
+    fakeLaunch.mockRestore();
   });
 });

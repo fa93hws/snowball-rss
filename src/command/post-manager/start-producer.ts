@@ -35,7 +35,12 @@ export async function startProducer(params: {
     titleLengthLimit: 65535,
   });
   const snowballRssService = new SnowballRssService(rssHubService, logger);
-  const screenshotService = services.screenshotService ?? new ScreenShotService(logger);
+  const screenshotService =
+    services.screenshotService ??
+    new ScreenShotService({
+      logger,
+      crashService,
+    });
   const postProducer = new PostProducer({
     crashService,
     logger,
