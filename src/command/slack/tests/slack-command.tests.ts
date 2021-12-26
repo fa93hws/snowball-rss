@@ -7,7 +7,7 @@ describe('slackCommandModule', () => {
 
     const parsedArgs = await new Promise<object>((resolve) => {
       parser.parse(
-        'by-slack --notification-channel nc --status-channel sc --do-not-run',
+        'by-slack --notification-channel nc --status-channel sc --snowball-user-id 123 --do-not-run',
         {},
         (_, argv) => {
           resolve(argv);
@@ -26,12 +26,16 @@ describe('slackCommandModule', () => {
     const parser = yargs.command(slackCommand).strict(true).help();
 
     const p = new Promise<object>((resolve, reject) => {
-      parser.parse('by-slack --status-channel sc --do-not-run', {}, (err, argv) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(argv);
-      });
+      parser.parse(
+        'by-slack --status-channel sc --snowball-user-id 123 --do-not-run',
+        {},
+        (err, argv) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(argv);
+        },
+      );
     });
     await expect(p).rejects.toThrow('notificationChannel');
   });
@@ -40,12 +44,34 @@ describe('slackCommandModule', () => {
     const parser = yargs.command(slackCommand).strict(true).help();
 
     const p = new Promise<object>((resolve, reject) => {
-      parser.parse('by-slack --notification-channel nc --do-not-run', {}, (err, argv) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(argv);
-      });
+      parser.parse(
+        'by-slack --notification-channel nc --snowball-user-id 123 --do-not-run',
+        {},
+        (err, argv) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(argv);
+        },
+      );
+    });
+    await expect(p).rejects.toThrow('statusChannel');
+  });
+
+  it('throws if snowball-user-id is not provided', async () => {
+    const parser = yargs.command(slackCommand).strict(true).help();
+
+    const p = new Promise<object>((resolve, reject) => {
+      parser.parse(
+        'by-slack --notification-channel nc --status-channel sc --do-not-run',
+        {},
+        (err, argv) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(argv);
+        },
+      );
     });
     await expect(p).rejects.toThrow('statusChannel');
   });

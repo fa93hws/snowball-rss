@@ -9,6 +9,9 @@ type PostMessageParams = {
   // https://api.slack.com/methods/chat.postMessage#arg_text
   text: string;
 
+  // text that will be displayed on toaster
+  abstract: string;
+
   image?: {
     content: Buffer;
     filename: string;
@@ -139,6 +142,7 @@ export class SlackService implements ISlackService {
       const postMessageResult = await this.client.chat.postMessage({
         channel: params.channel,
         blocks,
+        text: params.abstract,
       });
       if (!postMessageResult.ok) {
         this.logger.error('error posting message: ' + postMessageResult);

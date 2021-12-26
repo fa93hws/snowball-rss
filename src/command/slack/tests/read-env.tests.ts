@@ -9,8 +9,8 @@ describe('readVarsFromEnvs', () => {
   it('parse env to object', () => {
     const envVars = readVarsFromEnvs(fakeEnv);
     expect(envVars).toEqual({
-      BotUserToken: 'xoxb-xxxx-yyyy-xyxyxy',
-      UserToken: 'xoxp-xxxx-yyyy-xyxyxy',
+      botUserToken: 'xoxb-xxxx-yyyy-xyxyxy',
+      userToken: 'xoxp-xxxx-yyyy-xyxyxy',
     });
   });
 
