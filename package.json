@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:no-puppeteer": "jest --ci --selectProjects=no-puppeteer",
-    "test:puppeteer": "jest --ci --selectProjects=puppeteer",
+    "test:internal": "jest --ci --selectProjects=internal",
+    "test:external": "jest --ci --selectProjects=external",
     "format": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",

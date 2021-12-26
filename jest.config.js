@@ -24,12 +24,13 @@ module.exports = {
 
   projects: [
     {
-      displayName: 'no-puppeteer',
+      displayName: 'internal',
       testMatch: ['**/tests/**/*.tests.ts', '!**/*.puppeteer.tests.ts'],
       ...config,
     },
     {
-      displayName: 'puppeteer',
+      // external tests depends on external stuffs.
+      displayName: 'external',
       testMatch: ['**/tests/*.puppeteer.tests.ts'],
       ...config,
     },

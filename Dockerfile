@@ -10,5 +10,5 @@ WORKDIR /snowball-rss
 COPY . .
 COPY WeiRuanYaHei.ttf /usr/share/fonts/win/weiruanyahei.ttf
 RUN npm ci
-RUN npm run test:puppeteer
+RUN npm run test
 ENTRYPOINT ["node", "dist/snowball-rss.js"]
