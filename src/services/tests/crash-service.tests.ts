@@ -1,8 +1,11 @@
 import { fakeLogger } from '@services/fake/logging-service';
 import type { ILogger } from '@services/logging-service';
 import type { IMailService } from '@services/notification/mail-service';
+import type { ISlackService } from '@services/slack-service';
+import { Result } from '@utils/result';
 import * as path from 'path';
-import { EmailCrashService } from '../crash-service';
+import { EOL } from 'os';
+import { EmailCrashService, SlackCrashService } from '../crash-service';
 
 describe('EmailCrashService', () => {
   const fakeSendMail = jest.fn();
@@ -33,10 +36,37 @@ describe('EmailCrashService', () => {
       text: 'by accident',
       attachments: [
         {
-          filename: 'log.txt',
+          filename: 'error.log',
           content: Buffer.from('I crashed!'),
         },
       ],
+    });
+    expect(mockedExit).toHaveBeenCalledWith(1);
+    mockedExit.mockRestore();
+  });
+});
+
+describe('SlackCrashService', () => {
+  const fakeSendSlackMessage = jest.fn().mockResolvedValueOnce(Result.ok(1));
+  const slackService: ISlackService = {
+    postSimpleMessage: fakeSendSlackMessage,
+  };
+
+  it('sends crash reason', async () => {
+    const mockedExit = jest
+      .spyOn(process, 'exit')
+      .mockImplementationOnce(() => undefined as any as never);
+    const service = new SlackCrashService(
+      {
+        logger: fakeLogger,
+        slackService,
+      },
+      '#channel',
+    );
+    await service.crash('by accident');
+    expect(fakeSendSlackMessage).toHaveBeenCalledWith({
+      channel: '#channel',
+      text: ['*[fatal] service down*', '_reason_: ', '', '```', 'by accident', '```'].join(EOL),
     });
     expect(mockedExit).toHaveBeenCalledWith(1);
     mockedExit.mockRestore();
