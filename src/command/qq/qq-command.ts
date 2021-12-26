@@ -4,7 +4,9 @@ import type { ICrashService } from '@services/crash-service';
 import type { CommandModule } from 'yargs';
 import path from 'path';
 import { getRepoRoot } from '@utils/path';
+import { createHandler } from './consumer-handler';
 import type { PostWithScreenshot } from '../post-manager/producer';
+import { PostConsumer } from '../post-manager/consumer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
 
@@ -28,26 +30,8 @@ async function handler(args: CliArgs) {
       process.exit(1);
     },
   };
-  const consume = async (queue: PostWithScreenshot[]) => {
-    for (let idx = 0; idx < queue.length; idx++) {
-      const post = queue[idx];
-      const image = post.screenshot?.content;
-      if (image == null) {
-        continue;
-      }
-      queue.splice(idx, 1);
-      const result = await qqService.sendMessageToGroup(
-        args.groupId,
-        post.content,
-        post.link,
-        image,
-      );
-      if (!result.isOk) {
-        queue.push(post);
-      }
-      break;
-    }
-  };
+  const consumerHandler = createHandler(qqService, args.groupId);
+  const postConsumer = new PostConsumer(logger, consumerHandler);
 
   const postQueue: PostWithScreenshot[] = [];
   startProducer({
@@ -63,7 +47,7 @@ async function handler(args: CliArgs) {
   const consumerScheduler = new Scheduler({
     intervalSecond: 10,
     scheduledWork: async () => {
-      consume(postQueue);
+      postConsumer.consumeOne(postQueue);
       return { shouldContinue: true };
     },
     logger,

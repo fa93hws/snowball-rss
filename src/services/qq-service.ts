@@ -7,7 +7,6 @@ export interface IQQService {
   sendMessageToGroup(
     groupId: number,
     message: string,
-    link: string,
     image?: Buffer,
   ): Promise<Result.Result<1, unknown>>;
 
@@ -75,28 +74,23 @@ export class QQService implements IQQService {
   async sendMessageToGroup(
     groupId: number,
     message: string,
-    link: string,
     image?: Buffer,
   ): Promise<Result.Result<1, unknown>> {
     if (!this.loggedIn) {
-      return Result.err('not logged in');
+      const errorMsg = `try to post message ${message} to group ${groupId} when not logged in`;
+      this.logger.error(errorMsg);
+      return Result.err(errorMsg);
     } else if (!this.client.gl.has(groupId)) {
+      this.logger.error('no group with id ' + groupId);
       return Result.err('no group with id ' + groupId);
     }
     const group = this.client.pickGroup(groupId, true);
     try {
-      this.logger.debug('posting message in group');
-      await group.sendMsg(
-        segment.share(
-          link,
-          '盛京剑客有更新',
-          'https://xavatar.imedao.com/community/20188/1537323711286-1537324201938.jpg!240x240.jpg',
-          message,
-        ),
-      );
+      await group.sendMsg(message);
+      this.logger.info(`${message} posted in group ${groupId}`);
       if (image != null) {
         await group.sendMsg(segment.image(image));
-        this.logger.debug('image sent');
+        this.logger.info('image sent to group ' + groupId);
       }
       return Result.ok(1);
     } catch (e) {
