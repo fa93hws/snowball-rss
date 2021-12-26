@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { EOL } from 'os';
 import type { ILogger } from './logging-service';
 import type { IMailService, Mail } from './notification/mail-service';
+import type { ISlackService } from './slack-service';
 
 export interface ICrashService {
   crash(reason: any): Promise<never>;
@@ -32,7 +34,7 @@ export class EmailCrashService implements ICrashService {
     if (fs.existsSync(logFilePath)) {
       mail.attachments = [
         {
-          filename: 'log.txt',
+          filename: 'error.log',
           content: fs.readFileSync(logFilePath),
         },
       ];
@@ -41,6 +43,41 @@ export class EmailCrashService implements ICrashService {
     }
     await this.mailService.send(mail);
     this.logger.error(`app crashed, reports has been sent to ${this.adminEmailAdress}`);
+    process.exit(1);
+  }
+}
+
+export class SlackCrashService implements ICrashService {
+  private readonly logger: ILogger;
+  private readonly slackService: ISlackService;
+
+  constructor(
+    services: {
+      logger: ILogger;
+      slackService: ISlackService;
+    },
+    private readonly channel: string,
+  ) {
+    this.logger = services.logger;
+    this.slackService = services.slackService;
+  }
+
+  async crash(reason: string): Promise<never> {
+    const plainTextMessage = [
+      '*[fatal] service down*',
+      '_reason_: ',
+      '',
+      '```',
+      reason,
+      '```',
+    ].join(EOL);
+    const postMessageResult = await this.slackService.postSimpleMessage({
+      channel: this.channel,
+      text: plainTextMessage,
+    });
+    if (!postMessageResult.isOk) {
+      this.logger.error('failed to send crash message to slack due to ' + postMessageResult.error);
+    }
     process.exit(1);
   }
 }
