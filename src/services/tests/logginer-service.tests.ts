@@ -7,7 +7,7 @@ describe('Logger', () => {
 
   beforeAll(async () => {
     if (fs.existsSync(logDir)) {
-      fs.rmdirSync(logDir, { recursive: true });
+      fs.rmSync(logDir, { recursive: true });
     }
     const logger = new Logger({
       dirname: logDir,
