@@ -25,6 +25,7 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': 'error',
 
     'no-console': 'error',
+    'object-shorthand': 'error',
     eqeqeq: ['error', 'smart'],
 
     'jest/no-test-callback': 'off',
