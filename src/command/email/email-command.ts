@@ -1,3 +1,4 @@
+import { EmailCrashService } from '@services/crash-service';
 import { Logger } from '@services/logging-service';
 import { MailService } from '@services/notification/mail-service';
 import { getRepoRoot } from '@utils/path';
@@ -5,11 +6,11 @@ import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import type { PostWithScreenshot } from '../post-manager/producer';
-import { PostConsumerForEmail } from './post-consumer';
+import { PostConsumer } from '../post-manager/consumer';
+import { createhandler } from './consumer-handler';
 import { readVarsFromEnvs } from './read-envs';
 import { Scheduler } from '../scheduler';
 import { startProducer } from '../post-manager/start-producer';
-import { EmailCrashService } from '@services/crash-service';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -35,13 +36,8 @@ async function handler(args: CliArgs): Promise<void> {
     logger,
   );
   const crashService = new EmailCrashService({ logger, mailService }, envVars.adminEmailAdress);
-  const postConsumerForEmail = new PostConsumerForEmail(
-    {
-      logger,
-      mailService,
-    },
-    envVars.subscribers,
-  );
+  const consumerHandler = createhandler(mailService, envVars.subscribers);
+  const postConsumer = new PostConsumer(logger, consumerHandler);
 
   if (args.sendTestEmail) {
     logger.info('sending dummy email to ensure auth success');
@@ -66,7 +62,7 @@ async function handler(args: CliArgs): Promise<void> {
   const consumerScheduler = new Scheduler({
     intervalSecond: 10,
     scheduledWork: async () => {
-      postConsumerForEmail.consume(postQueue);
+      postConsumer.consumeOne(postQueue);
       return { shouldContinue: true };
     },
     logger,

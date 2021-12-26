@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/web-api';
+import { WebClient as SlackWebClient } from '@slack/web-api';
 import type { KnownBlock } from '@slack/web-api';
 import { Result } from '@utils/result';
 import type { ILogger } from './logging-service';
@@ -23,7 +23,7 @@ export interface ISlackService {
 }
 
 export class SlackService implements ISlackService {
-  private readonly client: WebClient;
+  private readonly client: SlackWebClient;
   private readonly userToken: string;
   private readonly logger: ILogger;
 
@@ -31,12 +31,12 @@ export class SlackService implements ISlackService {
   constructor(
     params: { botUserToken: string; userToken: string; logger: ILogger },
     override?: {
-      WebClient?: typeof WebClient;
+      WebClient?: typeof SlackWebClient;
     },
   ) {
     this.userToken = params.userToken;
-    const WebClientImpl = override?.WebClient ?? WebClient;
-    this.client = new WebClientImpl(params.botUserToken, {
+    const WebClient = override?.WebClient ?? SlackWebClient;
+    this.client = new WebClient(params.botUserToken, {
       retryConfig: {
         retries: 5,
         minTimeout: 1 * 1000,

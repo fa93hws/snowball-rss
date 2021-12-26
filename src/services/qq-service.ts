@@ -3,7 +3,18 @@ import { createClient, segment } from 'oicq';
 import type { Client } from 'oicq';
 import type { ILogger } from './logging-service';
 
-export class QQService {
+export interface IQQService {
+  sendMessageToGroup(
+    groupId: number,
+    message: string,
+    link: string,
+    image?: Buffer,
+  ): Promise<Result.Result<1, unknown>>;
+
+  sendMessageToUser(userId: number, message: string): Promise<Result.Result<1, unknown>>;
+}
+
+export class QQService implements IQQService {
   private loggedIn = false;
   private readonly client: Client;
   private readonly logger: ILogger;
