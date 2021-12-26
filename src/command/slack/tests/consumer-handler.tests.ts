@@ -1,7 +1,8 @@
 import { Post } from '@services/rss/snowball/message';
-import { Result } from '@utils/result';
-import { createhandler } from '../consumer-handler';
 import type { ISlackService } from '@services/slack-service';
+import { Result } from '@utils/result';
+import { EOL } from 'os';
+import { createhandler } from '../consumer-handler';
 
 describe('ConsumerHandlerForSlack', () => {
   const mockPostMessage = jest.fn();
@@ -19,7 +20,7 @@ describe('ConsumerHandlerForSlack', () => {
     expect(mockPostMessage).toHaveBeenCalledWith({
       channel: '#channel',
       abstract: 'title-2',
-      text: 'content-2',
+      text: ['content-2', '', 'post_url-2'].join(EOL),
       image: {
         content: Buffer.from('fake-screenshot'),
         filename: 'screenshot.png',
