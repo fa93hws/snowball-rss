@@ -45,7 +45,7 @@ async function handler(args: CliArgs) {
   slackService.postSimpleMessage({
     channel: args.statusChannel,
     abstract: '服务上线',
-    text: 'servce up',
+    text: 'Service up',
   });
 
   const postQueue: PostWithScreenshot[] = [];
@@ -89,7 +89,7 @@ async function handler(args: CliArgs) {
       await slackService.postSimpleMessage({
         channel: args.statusChannel,
         abstract: '服务下线',
-        text: 'servce down',
+        text: 'Service down',
       });
       process.exit(1);
     });
