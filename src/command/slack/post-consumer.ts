@@ -23,10 +23,10 @@ export class PostConsumerForSlack {
       }
       found = true;
       queue.splice(idx, 1);
-      const messageText = post.content;
       const result = await this.slackService.postSimpleMessage({
         channel: this.channel,
-        text: messageText,
+        abstract: post.title,
+        text: post.content,
         image: {
           content: post.screenshot.content,
           filename: `screenshot.${post.screenshot.triedTimes}.png`,

@@ -73,6 +73,7 @@ export class SlackCrashService implements ICrashService {
     ].join(EOL);
     const postMessageResult = await this.slackService.postSimpleMessage({
       channel: this.channel,
+      abstract: '[致命的错误] 无法继续运行',
       text: plainTextMessage,
     });
     if (!postMessageResult.isOk) {

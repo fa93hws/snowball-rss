@@ -66,6 +66,7 @@ describe('SlackCrashService', () => {
     await service.crash('by accident');
     expect(fakeSendSlackMessage).toHaveBeenCalledWith({
       channel: '#channel',
+      abstract: '[致命的错误] 无法继续运行',
       text: ['*[fatal] service down*', '_reason_: ', '', '```', 'by accident', '```'].join(EOL),
     });
     expect(mockedExit).toHaveBeenCalledWith(1);

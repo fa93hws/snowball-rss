@@ -4,6 +4,12 @@ import type { CommandModule } from 'yargs';
 import dotenv from 'dotenv';
 import * as path from 'path';
 import { readVarsFromEnvs } from './read-envs';
+import { SlackService } from '@services/slack-service';
+import { SlackCrashService } from '@services/crash-service';
+import { PostConsumerForSlack } from './post-consumer';
+import type { PostWithScreenshot } from '../post-manager/producer';
+import { startProducer } from '../post-manager/start-producer';
+import { Scheduler } from '../scheduler';
 
 type CliArgs = {
   notificationChannel: string;
@@ -11,6 +17,7 @@ type CliArgs = {
   intervalSecond: number;
   dotEnvFile: string;
   doNotRun: boolean;
+  snowballUserId: string;
 };
 
 async function handler(args: CliArgs) {
@@ -20,7 +27,73 @@ async function handler(args: CliArgs) {
   const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
-  readVarsFromEnvs();
+  const envVars = readVarsFromEnvs();
+  const slackService = new SlackService({
+    botUserToken: envVars.botUserToken,
+    userToken: envVars.userToken,
+    logger,
+  });
+  const crashService = new SlackCrashService({ logger, slackService }, args.statusChannel);
+  const postConsumerForSlack = new PostConsumerForSlack(
+    {
+      logger,
+      slackService,
+    },
+    args.notificationChannel,
+  );
+
+  slackService.postSimpleMessage({
+    channel: args.statusChannel,
+    abstract: '服务上线',
+    text: 'servce up',
+  });
+
+  const postQueue: PostWithScreenshot[] = [];
+  startProducer({
+    intervalSecond: args.intervalSecond,
+    snowballUserId: args.snowballUserId,
+    postQueue,
+    services: {
+      logger,
+      crashService,
+    },
+  });
+
+  const consumerScheduler = new Scheduler({
+    intervalSecond: 10,
+    scheduledWork: async () => {
+      postConsumerForSlack.consume(postQueue);
+      return { shouldContinue: true };
+    },
+    logger,
+    name: 'post consumer for slack',
+  });
+  consumerScheduler.start();
+
+  [
+    'SIGHUP',
+    'SIGINT',
+    'SIGQUIT',
+    'SIGILL',
+    'SIGTRAP',
+    'SIGABRT',
+    'SIGBUS',
+    'SIGFPE',
+    'SIGUSR1',
+    'SIGSEGV',
+    'SIGUSR2',
+    'SIGTERM',
+  ].forEach(function (sig) {
+    process.on(sig, async function () {
+      logger.info('service down from signal: ' + sig);
+      await slackService.postSimpleMessage({
+        channel: args.statusChannel,
+        abstract: '服务下线',
+        text: 'servce down',
+      });
+      process.exit(1);
+    });
+  });
 }
 
 export const slackCommand: CommandModule<{}, CliArgs> = {
@@ -36,6 +109,11 @@ export const slackCommand: CommandModule<{}, CliArgs> = {
       .option('statusChannel', {
         type: 'string',
         describe: 'channel id to send status related message (service down, error report etc)',
+        demandOption: true,
+      })
+      .option('snowballUserId', {
+        type: 'string',
+        describe: 'snowball user id',
         demandOption: true,
       })
       .option('intervalSecond', {

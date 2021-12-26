@@ -53,6 +53,7 @@ describe('SlackService', () => {
     const postMessageParams = {
       channel: '#channel',
       text: '**some-text**',
+      abstract: 'some-text-',
       image: {
         content: Buffer.from('fake-screenshot'),
         filename: 'screenshot.png',
@@ -93,6 +94,7 @@ describe('SlackService', () => {
       });
       expect(fakePostMessage).toHaveBeenCalledWith({
         channel: '#channel',
+        text: 'some-text-',
         blocks: [
           {
             type: 'section',
@@ -227,18 +229,22 @@ describe('SlackService', () => {
   });
 
   describe('without image', () => {
+    const messageParams = {
+      channel: '#the-channel',
+      text: '**text**',
+      abstract: 'text',
+    };
+
     it('posts plain text message to slack', async () => {
       const fakePostMessage = jest.fn().mockResolvedValueOnce({
         ok: true,
       });
       const service = createService({ fakePostMessage });
-      const postMessageResult = await service.postSimpleMessage({
-        channel: '#the-channel',
-        text: '**text**',
-      });
+      const postMessageResult = await service.postSimpleMessage(messageParams);
       expect(postMessageResult).toMatchObject({ isOk: true });
       expect(fakePostMessage).toHaveBeenCalledWith({
         channel: '#the-channel',
+        text: 'text',
         blocks: [
           {
             type: 'section',
@@ -256,20 +262,14 @@ describe('SlackService', () => {
         ok: false,
       });
       const service = createService({ fakePostMessage });
-      const postMessageResult = await service.postSimpleMessage({
-        channel: '#the-channel',
-        text: '**text**',
-      });
+      const postMessageResult = await service.postSimpleMessage(messageParams);
       expect(postMessageResult).toMatchObject({ isOk: false });
     });
 
     it('failed to post message because of not receiving response', async () => {
       const fakePostMessage = jest.fn().mockRejectedValueOnce('network error!');
       const service = createService({ fakePostMessage });
-      const postMessageResult = await service.postSimpleMessage({
-        channel: '#the-channel',
-        text: '**text**',
-      });
+      const postMessageResult = await service.postSimpleMessage(messageParams);
       expect(postMessageResult).toEqual(Result.err('network error!'));
     });
   });
