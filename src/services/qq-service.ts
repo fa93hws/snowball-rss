@@ -64,6 +64,7 @@ export class QQService {
   async sendMessageToGroup(
     groupId: number,
     message: string,
+    link: string,
     image?: Buffer,
   ): Promise<Result.Result<1, unknown>> {
     if (!this.loggedIn) {
@@ -74,8 +75,13 @@ export class QQService {
     const group = this.client.pickGroup(groupId, true);
     try {
       this.logger.debug('posting message in group');
-      await group.sendMsg(message);
-      this.logger.debug('message sent, does it has image? ' + (image != null));
+      await group.sendMsg(
+        segment.share(
+          link,
+          message,
+          'https://xavatar.imedao.com/community/20188/1537323711286-1537324201938.jpg!240x240.jpg',
+        ),
+      );
       if (image != null) {
         await group.sendMsg(segment.image(image));
         this.logger.debug('image sent');

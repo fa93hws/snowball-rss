@@ -1,12 +1,12 @@
 import { Logger } from '@services/logging-service';
+import { QQService } from '@services/qq-service';
+import type { ICrashService } from '@services/crash-service';
 import type { CommandModule } from 'yargs';
 import path from 'path';
 import { getRepoRoot } from '@utils/path';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
-import { QQService } from '@services/qq-service';
-import type { ICrashService } from '@services/crash-service';
 
 type CliArgs = {
   id: number;
@@ -36,7 +36,12 @@ async function handler(args: CliArgs) {
         continue;
       }
       queue.splice(idx, 1);
-      const result = await qqService.sendMessageToGroup(args.groupId, post.content, image);
+      const result = await qqService.sendMessageToGroup(
+        args.groupId,
+        post.content,
+        post.link,
+        image,
+      );
       if (!result.isOk) {
         queue.push(post);
       }
