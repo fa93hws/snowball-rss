@@ -29,16 +29,16 @@ jobs:
         run: npm run format
       - name: Run typecheck
         run: npm run lint:ts
-      - name: Run jest test excluding puppeteer
-        run: npm run test:no-puppeteer -- --coverage
+      - name: Run tests without external dependencies
+        run: npm run test:internal -- --coverage
       - name: Report test coverage to codecov
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/**/*
           flags: unittests
-      - name: Run puppeteer test
-        run: npm run test:puppeteer
+      - name: Run tests with external dependencies
+        run: npm run test:external
       - name: Run esbuild
         run: npm run build
 
