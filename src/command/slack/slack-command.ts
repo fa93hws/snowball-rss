@@ -11,6 +11,7 @@ import { PostConsumer } from '../post-manager/consumer';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
+import { fakeLogger } from '@services/fake/logging-service';
 
 type CliArgs = {
   notificationChannel: string;
@@ -19,13 +20,16 @@ type CliArgs = {
   dotEnvFile: string;
   doNotRun: boolean;
   snowballUserId: string;
+  useFakeLogger: boolean;
 };
 
 async function handler(args: CliArgs) {
   if (args.doNotRun) {
     return;
   }
-  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+  const logger = args.useFakeLogger
+    ? fakeLogger
+    : new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
@@ -121,6 +125,11 @@ export const slackCommand: CommandModule<{}, CliArgs> = {
         type: 'string',
         describe: 'path to .env file',
         default: '.env',
+      })
+      .option('useFakeLogger', {
+        type: 'boolean',
+        describe: 'if true, fake logger will be used. For test purpose only!',
+        default: false,
       })
       .option('doNotRun', {
         type: 'boolean',

@@ -94,6 +94,8 @@ export class PostProducer implements IPostProducer {
     snowballUser: string,
     options: { isFirstRun?: boolean } = {},
   ): Promise<PostWithScreenshot[]> {
+    // so that unit test will not run rssService;
+    await new Promise(setImmediate);
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       if (fetchResult.error.kind === 'parse') {

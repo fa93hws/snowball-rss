@@ -2,6 +2,8 @@ import yargs from 'yargs';
 import { slackCommand } from '../slack-command';
 
 describe('slackCommandModule', () => {
+  jest.useFakeTimers();
+
   test('default values', async () => {
     const parser = yargs.command(slackCommand).strict(true).help();
 
@@ -74,5 +76,15 @@ describe('slackCommandModule', () => {
       );
     });
     await expect(p).rejects.toThrow('snowballUserId');
+  });
+
+  it('is able to run initially', async () => {
+    const parser = yargs.command(slackCommand).strict(true).help();
+    expect(() =>
+      parser.parse(
+        'by-slack --notification-channel nc --status-channel sc --snowball-user-id 123 --use-fake-logger',
+      ),
+    ).not.toThrow();
+    jest.clearAllTimers();
   });
 });

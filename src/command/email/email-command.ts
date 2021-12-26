@@ -1,6 +1,7 @@
 import { EmailCrashService } from '@services/crash-service';
 import { Logger } from '@services/logging-service';
 import { MailService } from '@services/notification/mail-service';
+import { fakeLogger } from '@services/fake/logging-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
@@ -16,6 +17,7 @@ type CliArgs = {
   sendTestEmail: boolean;
   intervalSecond: number;
   dotEnvFile?: string;
+  useFakeLogger: boolean;
   doNotRun: boolean;
 };
 
@@ -23,7 +25,9 @@ async function handler(args: CliArgs): Promise<void> {
   if (args.doNotRun) {
     return;
   }
-  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+  const logger = args.useFakeLogger
+    ? fakeLogger
+    : new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envVars = readVarsFromEnvs();
@@ -90,6 +94,11 @@ export const emailCommand: CommandModule<{}, CliArgs> = {
         type: 'string',
         describe: 'path to .env file',
         default: '.env',
+      })
+      .option('useFakeLogger', {
+        type: 'boolean',
+        describe: 'if true, fake logger will be used. For test purpose only!',
+        default: false,
       })
       .option('doNotRun', {
         type: 'boolean',
