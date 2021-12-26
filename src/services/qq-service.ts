@@ -78,8 +78,9 @@ export class QQService {
       await group.sendMsg(
         segment.share(
           link,
-          message,
+          '盛京剑客有更新',
           'https://xavatar.imedao.com/community/20188/1537323711286-1537324201938.jpg!240x240.jpg',
+          message,
         ),
       );
       if (image != null) {
