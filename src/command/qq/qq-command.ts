@@ -19,7 +19,7 @@ type CliArgs = {
 
 async function handler(args: CliArgs) {
   const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
-  const qqService = new QQService({ account: args.id });
+  const qqService = new QQService({ account: args.id, logger });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
   const crashService: ICrashService = {
@@ -31,15 +31,12 @@ async function handler(args: CliArgs) {
   const consume = async (queue: PostWithScreenshot[]) => {
     for (let idx = 0; idx < queue.length; idx++) {
       const post = queue[idx];
-      if (post.screenshot?.content == null) {
+      const image = post.screenshot?.content;
+      if (image == null) {
         continue;
       }
       queue.splice(idx, 1);
-      const result = await qqService.sendMessageToGroup(
-        args.groupId,
-        post.content,
-        post.screenshot.content,
-      );
+      const result = await qqService.sendMessageToGroup(args.groupId, post.content, image);
       if (!result.isOk) {
         queue.push(post);
       }

@@ -1,13 +1,16 @@
 import { Result } from '@utils/result';
 import { createClient, segment } from 'oicq';
 import type { Client } from 'oicq';
+import type { ILogger } from './logging-service';
 
 export class QQService {
   private loggedIn = false;
   private readonly client: Client;
+  private readonly logger: ILogger;
 
-  constructor(params: { account: number }) {
+  constructor(params: { account: number; logger: ILogger }) {
     this.client = createClient(params.account);
+    this.logger = params.logger;
   }
 
   private waitOnline(): Promise<void> {
@@ -37,6 +40,7 @@ export class QQService {
       await this.waitOnline();
       return Result.ok(1);
     } catch (e) {
+      this.logger.error(e);
       return Result.err(e);
     }
   }
@@ -52,6 +56,7 @@ export class QQService {
       await user.sendMsg(message);
       return Result.ok(1);
     } catch (e) {
+      this.logger.error(e);
       return Result.err(e);
     }
   }
@@ -68,10 +73,16 @@ export class QQService {
     }
     const group = this.client.pickGroup(groupId, true);
     try {
+      this.logger.debug('posting message in group');
       await group.sendMsg(message);
-      image && (await group.sendMsg(segment.image(image)));
+      this.logger.debug('message sent, does it has image? ' + (image != null));
+      if (image != null) {
+        await group.sendMsg(segment.image(image));
+        this.logger.debug('image sent');
+      }
       return Result.ok(1);
     } catch (e) {
+      this.logger.error(e);
       return Result.err(e);
     }
   }
