@@ -1,12 +1,13 @@
 import { Logger } from '@services/logging-service';
+import { SlackService } from '@services/slack-service';
+import { SlackCrashService } from '@services/crash-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import dotenv from 'dotenv';
 import * as path from 'path';
+import { createhandler } from './consumer-handler';
 import { readVarsFromEnvs } from './read-envs';
-import { SlackService } from '@services/slack-service';
-import { SlackCrashService } from '@services/crash-service';
-import { PostConsumerForSlack } from './post-consumer';
+import { PostConsumer } from '../post-manager/consumer';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
@@ -34,13 +35,9 @@ async function handler(args: CliArgs) {
     logger,
   });
   const crashService = new SlackCrashService({ logger, slackService }, args.statusChannel);
-  const postConsumerForSlack = new PostConsumerForSlack(
-    {
-      logger,
-      slackService,
-    },
-    args.notificationChannel,
-  );
+  const postQueue: PostWithScreenshot[] = [];
+  const consumerHandler = createhandler(slackService, args.notificationChannel);
+  const postConsumer = new PostConsumer(logger, consumerHandler);
 
   slackService.postSimpleMessage({
     channel: args.statusChannel,
@@ -48,7 +45,6 @@ async function handler(args: CliArgs) {
     text: 'Service up',
   });
 
-  const postQueue: PostWithScreenshot[] = [];
   startProducer({
     intervalSecond: args.intervalSecond,
     snowballUserId: args.snowballUserId,
@@ -62,7 +58,7 @@ async function handler(args: CliArgs) {
   const consumerScheduler = new Scheduler({
     intervalSecond: 10,
     scheduledWork: async () => {
-      postConsumerForSlack.consume(postQueue);
+      postConsumer.consumeOne(postQueue);
       return { shouldContinue: true };
     },
     logger,
