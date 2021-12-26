@@ -2,8 +2,6 @@ import yargs from 'yargs';
 import { emailCommand } from '../email-command';
 
 describe('emailCommandModule', () => {
-  jest.useFakeTimers();
-
   test('default values', async () => {
     const parser = yargs.command(emailCommand).strict(true).help();
 
@@ -17,11 +15,5 @@ describe('emailCommandModule', () => {
       sendTestEmail: false,
       dotEnvFile: '.env',
     });
-  });
-
-  it('is able to run initially', async () => {
-    const parser = yargs.command(emailCommand).strict(true).help();
-    expect(() => parser.parse('by-email --use-fake-logger')).not.toThrow();
-    jest.clearAllTimers();
   });
 });
