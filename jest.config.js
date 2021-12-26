@@ -7,8 +7,10 @@ const config = {
   ],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
-    '@services/(.*)$': '<rootDir>/src/services/$1',
-    '@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@services/(.*)$': '<rootDir>/src/services/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    // for rsshub
+    '^@/(.*)$': '<rootDir>/node_modules/rsshub/lib/$1',
   },
   globals: {
     'ts-jest': {

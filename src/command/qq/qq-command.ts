@@ -9,6 +9,7 @@ import type { PostWithScreenshot } from '../post-manager/producer';
 import { PostConsumer } from '../post-manager/consumer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
+import { fakeLogger } from '@services/fake/logging-service';
 
 type CliArgs = {
   id: number;
@@ -17,10 +18,18 @@ type CliArgs = {
   password?: string;
   snowballUserId: string;
   intervalSecond: number;
+
+  doNotRun: boolean;
+  useFakeLogger: boolean;
 };
 
 async function handler(args: CliArgs) {
-  const logger = new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+  if (args.doNotRun) {
+    return;
+  }
+  const logger = args.useFakeLogger
+    ? fakeLogger
+    : new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
   const qqService = new QQService({ account: args.id, logger });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
@@ -89,6 +98,16 @@ export const qqCommand: CommandModule<{}, CliArgs> = {
         type: 'string',
         describe: 'snowball user id',
         demandOption: true,
+      })
+      .option('useFakeLogger', {
+        type: 'boolean',
+        describe: 'if true, fake logger will be used. For test purpose only!',
+        default: false,
+      })
+      .option('doNotRun', {
+        type: 'boolean',
+        describe: 'if true, handler will not be called. For test purpose only!',
+        default: false,
       }),
   handler,
 };
