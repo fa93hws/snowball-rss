@@ -29,13 +29,11 @@ async function handler(args: CliArgs) {
     },
   };
   const consume = async (queue: PostWithScreenshot[]) => {
-    let found = false;
     for (let idx = 0; idx < queue.length; idx++) {
       const post = queue[idx];
       if (post.screenshot?.content == null) {
         continue;
       }
-      found = true;
       queue.splice(idx, 1);
       const result = await qqService.sendMessageToGroup(
         args.groupId,
