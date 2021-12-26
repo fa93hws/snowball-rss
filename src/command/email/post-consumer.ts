@@ -63,7 +63,7 @@ export class PostConsumerForEmail {
       break;
     }
     if (found === false) {
-      this.logger.info('no posts with screenshot found, nothing to send');
+      this.logger.verbose('no posts with screenshot found, nothing to send');
       return;
     }
   }

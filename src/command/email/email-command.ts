@@ -5,7 +5,7 @@ import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import type { PostWithScreenshot } from '../post-manager/producer';
-import { PostConsumerForEmail } from './post-consumer-email';
+import { PostConsumerForEmail } from './post-consumer';
 import { readVarsFromEnvs } from './read-envs';
 import { Scheduler } from '../scheduler';
 import { startProducer } from '../post-manager/start-producer';
