@@ -1,15 +1,16 @@
 import { Logger } from '@services/logging-service';
 import { QQService } from '@services/qq-service';
 import type { ICrashService } from '@services/crash-service';
+import { fakeLogger } from '@services/fake/logging-service';
+import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import path from 'path';
-import { getRepoRoot } from '@utils/path';
 import { createHandler } from './consumer-handler';
+import { Scheduler } from '../scheduler';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { PostConsumer } from '../post-manager/consumer';
 import { startProducer } from '../post-manager/start-producer';
-import { Scheduler } from '../scheduler';
-import { fakeLogger } from '@services/fake/logging-service';
+import { registerOnExit } from '../on-exit';
 
 type CliArgs = {
   id: number;
@@ -63,6 +64,8 @@ async function handler(args: CliArgs) {
     name: 'post consumer for slack',
   });
   consumerScheduler.start();
+
+  registerOnExit(logger, (e: any) => crashService.crash(e));
 }
 
 export const qqCommand: CommandModule<{}, CliArgs> = {

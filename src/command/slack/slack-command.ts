@@ -1,6 +1,7 @@
 import { Logger } from '@services/logging-service';
 import { SlackService } from '@services/slack-service';
 import { SlackCrashService } from '@services/crash-service';
+import { fakeLogger } from '@services/fake/logging-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import dotenv from 'dotenv';
@@ -11,7 +12,7 @@ import { PostConsumer } from '../post-manager/consumer';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { startProducer } from '../post-manager/start-producer';
 import { Scheduler } from '../scheduler';
-import { fakeLogger } from '@services/fake/logging-service';
+import { registerOnExit } from '../on-exit';
 
 type CliArgs = {
   notificationChannel: string;
@@ -70,30 +71,7 @@ async function handler(args: CliArgs) {
   });
   consumerScheduler.start();
 
-  [
-    'SIGHUP',
-    'SIGINT',
-    'SIGQUIT',
-    'SIGILL',
-    'SIGTRAP',
-    'SIGABRT',
-    'SIGBUS',
-    'SIGFPE',
-    'SIGUSR1',
-    'SIGSEGV',
-    'SIGUSR2',
-    'SIGTERM',
-  ].forEach(function (sig) {
-    process.on(sig, async function () {
-      logger.info('service down from signal: ' + sig);
-      await slackService.postSimpleMessage({
-        channel: args.statusChannel,
-        abstract: '服务下线',
-        text: 'Service down',
-      });
-      process.exit(1);
-    });
-  });
+  registerOnExit(logger, (sig: string) => crashService.crash('receiving ' + sig));
 }
 
 export const slackCommand: CommandModule<{}, CliArgs> = {
