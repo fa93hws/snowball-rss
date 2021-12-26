@@ -43,7 +43,7 @@ async function handler(args: CliArgs) {
   );
 
   slackService.postSimpleMessage({
-    channel: args.notificationChannel,
+    channel: args.statusChannel,
     abstract: '服务上线',
     text: 'servce up',
   });
@@ -69,6 +69,31 @@ async function handler(args: CliArgs) {
     name: 'post consumer for slack',
   });
   consumerScheduler.start();
+
+  [
+    'SIGHUP',
+    'SIGINT',
+    'SIGQUIT',
+    'SIGILL',
+    'SIGTRAP',
+    'SIGABRT',
+    'SIGBUS',
+    'SIGFPE',
+    'SIGUSR1',
+    'SIGSEGV',
+    'SIGUSR2',
+    'SIGTERM',
+  ].forEach(function (sig) {
+    process.on(sig, async function () {
+      logger.info('service down from signal: ' + sig);
+      await slackService.postSimpleMessage({
+        channel: args.statusChannel,
+        abstract: '服务下线',
+        text: 'servce down',
+      });
+      process.exit(1);
+    });
+  });
 }
 
 export const slackCommand: CommandModule<{}, CliArgs> = {

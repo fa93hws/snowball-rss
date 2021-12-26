@@ -53,7 +53,7 @@ export class SlackService implements ISlackService {
       token: this.userToken,
     });
     if (!response.ok || response.file == null || response.file.id == null) {
-      this.logger.error('failed to upload file: ' + response);
+      this.logger.error('failed to upload file: ' + JSON.stringify(response));
       return Result.err(new Error(`error uploading file, error is ${response.error}`));
     } else {
       this.logger.verbose('file uploaded, file id: ' + response.file.id);
@@ -67,7 +67,7 @@ export class SlackService implements ISlackService {
       file: fileId,
     });
     if (!response.ok || response.file == null) {
-      this.logger.error('failed to make file public: ' + response);
+      this.logger.error('failed to make file public: ' + JSON.stringify(response));
       return Result.err(
         new Error(`error making file public, fildId is ${fileId}, error is ${response.error}`),
       );
@@ -106,7 +106,8 @@ export class SlackService implements ISlackService {
       const shareFileResult = await this.makeFilePublic(fileId);
       return shareFileResult;
     } catch (e) {
-      this.logger.error('error uploading file due to promise rejection: ' + e);
+      this.logger.error('error uploading file due to promise rejection: ');
+      this.logger.error(e);
       return Result.err(e);
     }
   }
@@ -145,10 +146,10 @@ export class SlackService implements ISlackService {
         text: params.abstract,
       });
       if (!postMessageResult.ok) {
-        this.logger.error('error posting message: ' + postMessageResult);
+        this.logger.error('error posting message: ' + JSON.stringify(postMessageResult));
         return Result.err(new Error('error posting message: ' + postMessageResult.error));
       }
-      this.logger.verbose('message posted, content: ' + blocks);
+      this.logger.verbose('message posted, content: ' + JSON.stringify(blocks));
       return Result.ok(1);
     } catch (e) {
       return Result.err(e);

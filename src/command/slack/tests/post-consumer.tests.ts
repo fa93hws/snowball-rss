@@ -66,6 +66,7 @@ describe('PostConsumerForSlack', () => {
       ]);
       expect(mockPostMessage).toHaveBeenCalledWith({
         channel: '#channel',
+        abstract: 'title-2',
         text: 'content-2',
         image: {
           content: Buffer.from('fake-screenshot'),

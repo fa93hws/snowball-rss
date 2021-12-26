@@ -73,6 +73,6 @@ describe('slackCommandModule', () => {
         },
       );
     });
-    await expect(p).rejects.toThrow('statusChannel');
+    await expect(p).rejects.toThrow('snowballUserId');
   });
 });
