@@ -26,7 +26,7 @@ export class MailService implements IMailService {
     param: { service: string; user: string; pass: string },
     private readonly logger: ILogger,
   ) {
-    this.logger.debug('logging into email service');
+    this.logger.verbose('logging into email service');
     this.from = param.user;
     this.transporter = mailer.createTransport({
       service: param.service,

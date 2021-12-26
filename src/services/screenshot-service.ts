@@ -35,7 +35,7 @@ export class ScreenShotService implements IScreenShotService {
   }
 
   async capturePage(url: string): Promise<Result.Result<Buffer, unknown>> {
-    this.logger.verbose(`taking snapshot for ${url}`);
+    this.logger.info(`taking snapshot for ${url}`);
     const browser = await this.launchBrowser();
     try {
       const page = await browser.newPage();

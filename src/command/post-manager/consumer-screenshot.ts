@@ -25,7 +25,7 @@ export class PostConsumerScreenshot implements IPostConsumerScreenshot {
       if (screenshotResult.isOk) {
         post.screenshot.content = screenshotResult.value;
       } else {
-        this.logger.warn(
+        this.logger.error(
           `screenshot failed for ${post.link}, has tried ${post.screenshot.triedTimes} times`,
         );
       }
