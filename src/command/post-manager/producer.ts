@@ -104,18 +104,18 @@ export class PostProducer implements IPostProducer {
       }
     }
     const message = fetchResult.value;
-    this.logger.debug(`fetch success, got message for user ${snowballUser}`);
-    this.logger.debug({
-      time: message.updateTime,
-      posts: message.posts.map((p) => p.title.substring(0, 30)),
-    });
+    this.logger.info(
+      `fetch success, got messages for user ${snowballUser}, they are ${JSON.stringify({
+        time: message.updateTime,
+        posts: message.posts.map((p) => p.title.substring(0, 30)),
+      })}`,
+    );
 
     const newPosts = this.findNewPosts(message.posts);
     for (const newPost of newPosts) {
       this.oldPostLinks.set(newPost.link, newPost.publishedTime);
       if (!options.isFirstRun) {
-        this.logger.info('found new post, push to queue, post is');
-        this.logger.info(newPost);
+        this.logger.info('found new post, push to queue, post is ' + JSON.stringify(newPost));
       }
     }
     this.maybeRemoveSomeOldPostLinks();

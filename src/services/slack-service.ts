@@ -149,7 +149,7 @@ export class SlackService implements ISlackService {
         this.logger.error('error posting message: ' + JSON.stringify(postMessageResult));
         return Result.err(new Error('error posting message: ' + postMessageResult.error));
       }
-      this.logger.verbose('message posted, content: ' + JSON.stringify(blocks));
+      this.logger.info('message posted, content: ' + JSON.stringify(blocks));
       return Result.ok(1);
     } catch (e) {
       return Result.err(e);
