@@ -1,4 +1,4 @@
-import type { ICrashService } from '@services/crash-service';
+import type { IExitHelper } from '@services/exit-helper';
 import fs from 'fs';
 import path from 'path';
 import { ScreenShotService } from '../screenshot-service';
@@ -7,12 +7,13 @@ import { fakeLogger } from '../fake/logging-service';
 describe('screenshot', () => {
   jest.setTimeout(60000);
 
-  const fakeCrashService: ICrashService = {
-    crash: jest.fn(),
+  const fakeExitHelper: IExitHelper = {
+    onExpectedExit: jest.fn(),
+    onUnexpectedExit: jest.fn(),
   };
   const service = new ScreenShotService({
     logger: fakeLogger,
-    crashService: fakeCrashService,
+    exitHelper: fakeExitHelper,
   });
 
   it('take a screenshot for a given url', async () => {

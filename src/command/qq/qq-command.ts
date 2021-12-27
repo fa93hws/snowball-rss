@@ -1,6 +1,5 @@
 import { Logger } from '@services/logging-service';
 import { QQService } from '@services/qq-service';
-import type { ICrashService } from '@services/crash-service';
 import { fakeLogger } from '@services/fake/logging-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
@@ -11,6 +10,7 @@ import type { PostWithScreenshot } from '../post-manager/producer';
 import { PostConsumer } from '../post-manager/consumer';
 import { startProducer } from '../post-manager/start-producer';
 import { registerOnExit } from '../on-exit';
+import { ExitHelper } from './exit-helper';
 
 type CliArgs = {
   id: number;
@@ -34,12 +34,7 @@ async function handler(args: CliArgs) {
   const qqService = new QQService({ account: args.id, logger });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
-  const crashService: ICrashService = {
-    async crash(reason: string) {
-      await qqService.sendMessageToUser(args.adminId, '群聊机器人出错了，' + reason);
-      process.exit(1);
-    },
-  };
+  const exitHelper = new ExitHelper(qqService, logger, args.adminId);
   const consumerHandler = createHandler(qqService, args.groupId);
   const postConsumer = new PostConsumer(logger, consumerHandler);
 
@@ -50,7 +45,7 @@ async function handler(args: CliArgs) {
     postQueue,
     services: {
       logger,
-      crashService,
+      exitHelper,
     },
   });
 
@@ -65,7 +60,7 @@ async function handler(args: CliArgs) {
   });
   consumerScheduler.start();
 
-  registerOnExit(logger, (e: any) => crashService.crash(e));
+  registerOnExit(logger, exitHelper);
 }
 
 export const qqCommand: CommandModule<{}, CliArgs> = {

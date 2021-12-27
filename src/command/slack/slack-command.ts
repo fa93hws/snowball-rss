@@ -1,11 +1,11 @@
 import { Logger } from '@services/logging-service';
 import { SlackService } from '@services/slack-service';
-import { SlackCrashService } from '@services/crash-service';
 import { fakeLogger } from '@services/fake/logging-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import dotenv from 'dotenv';
 import * as path from 'path';
+import { ExitHelper } from './exit-helper';
 import { createhandler } from './consumer-handler';
 import { readVarsFromEnvs } from './read-envs';
 import { PostConsumer } from '../post-manager/consumer';
@@ -39,7 +39,7 @@ async function handler(args: CliArgs) {
     userToken: envVars.userToken,
     logger,
   });
-  const crashService = new SlackCrashService({ logger, slackService }, args.statusChannel);
+  const exitHelper = new ExitHelper({ logger, slackService }, args.statusChannel);
   const postQueue: PostWithScreenshot[] = [];
   const consumerHandler = createhandler(slackService, args.notificationChannel);
   const postConsumer = new PostConsumer(logger, consumerHandler);
@@ -56,7 +56,7 @@ async function handler(args: CliArgs) {
     postQueue,
     services: {
       logger,
-      crashService,
+      exitHelper,
     },
   });
 
@@ -71,7 +71,7 @@ async function handler(args: CliArgs) {
   });
   consumerScheduler.start();
 
-  registerOnExit(logger, (sig: string) => crashService.crash('receiving ' + sig));
+  registerOnExit(logger, exitHelper);
 }
 
 export const slackCommand: CommandModule<{}, CliArgs> = {

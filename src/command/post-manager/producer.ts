@@ -1,4 +1,4 @@
-import type { ICrashService } from '@services/crash-service';
+import type { IExitHelper } from '@services/exit-helper';
 import type { ILogger } from '@services/logging-service';
 import type { Post } from '@services/rss/snowball/message';
 import type { ISnowballRssService } from '@services/rss/snowball/service';
@@ -22,7 +22,7 @@ export interface IPostProducer {
 export class PostProducer implements IPostProducer {
   private readonly logger: ILogger;
   private readonly snowballRssService: ISnowballRssService;
-  private readonly crashService: ICrashService;
+  private readonly exitHelper: IExitHelper;
   // key: link of the post. value: publish date of the post
   private readonly oldPostLinks: Map<string, Date>;
   private oldestPostDate: Date;
@@ -33,13 +33,13 @@ export class PostProducer implements IPostProducer {
     services: {
       logger: ILogger;
       snowballRssService: ISnowballRssService;
-      crashService: ICrashService;
+      exitHelper: IExitHelper;
     },
     options: { oldPostLinks?: Map<string, Date>; maxOldPostKeptCount?: number } = {},
   ) {
     this.logger = services.logger;
     this.snowballRssService = services.snowballRssService;
-    this.crashService = services.crashService;
+    this.exitHelper = services.exitHelper;
     this.oldPostLinks = options.oldPostLinks ?? new Map<string, Date>();
     this.maxOldPostKeptCount = options.maxOldPostKeptCount ?? 255;
     this.oldestPostDate = this.findOldestPostDate();
@@ -97,7 +97,7 @@ export class PostProducer implements IPostProducer {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       if (fetchResult.error.kind === 'parse') {
-        return this.crashService.crash('parsing error: ' + fetchResult.error.message);
+        return this.exitHelper.onUnexpectedExit('parsing error: ' + fetchResult.error.message);
       } else {
         this.logger.error('fetch error: ' + fetchResult.error.message);
         return [];

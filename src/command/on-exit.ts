@@ -1,6 +1,7 @@
+import type { IExitHelper } from '@services/exit-helper';
 import type { ILogger } from '@services/logging-service';
 
-export function registerOnExit(logger: ILogger, handler: (signal: string) => Promise<void>) {
+export function registerOnExit(logger: ILogger, exitHelper: IExitHelper) {
   [
     'SIGHUP',
     'SIGINT',
@@ -17,8 +18,7 @@ export function registerOnExit(logger: ILogger, handler: (signal: string) => Pro
   ].forEach(function (sig) {
     process.on(sig, async function () {
       logger.info('service down from signal: ' + sig);
-      await handler(sig);
-      process.exit(1);
+      await exitHelper.onExpectedExit(sig);
     });
   });
 }
