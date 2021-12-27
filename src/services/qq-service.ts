@@ -57,8 +57,11 @@ export class QQService implements IQQService {
 
   async sendMessageToUser(userId: number, message: string): Promise<Result.Result<1, unknown>> {
     if (!this.loggedIn) {
+      const errorMsg = `try to post message ${message} to iser ${userId} when not logged in`;
+      this.logger.error(errorMsg);
       return Result.err('not logged in');
     } else if (!this.client.fl.has(userId)) {
+      this.logger.error('no friend with id ' + userId);
       return Result.err('no friend with id ' + userId);
     }
     const user = this.client.pickFriend(userId, true);

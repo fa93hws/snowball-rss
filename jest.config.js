@@ -4,6 +4,7 @@ const config = {
     // screenshot service is covered by puppeteer test.
     'screenshot-service',
     '.tests.ts',
+    'src/index.ts',
   ],
   coverageDirectory: 'coverage',
   moduleNameMapper: {
