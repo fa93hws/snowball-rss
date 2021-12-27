@@ -5,7 +5,7 @@ import { emailCommand, deparactedEmailCommand } from './command/email/email-comm
 import { slackCommand } from './command/slack/slack-command';
 
 export function main() {
-  yargs(hideBin(process.argv))
+  return yargs(hideBin(process.argv))
     .command(emailCommand)
     .command(deparactedEmailCommand)
     .command(slackCommand)
