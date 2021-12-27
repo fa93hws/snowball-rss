@@ -96,18 +96,20 @@ describe('startProducer', () => {
     expect(postQueue.sort((a, b) => a.publishedTime.getTime() - b.publishedTime.getTime())).toEqual(
       [
         {
-          ...new Post('title-17', 'description-17', new Date(2020, 8, 18), 'link-17'),
+          ...new Post('title-17', 'description-17', new Date(2020, 8, 18), 'link-17', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-17'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
         {
-          ...new Post('title-18', 'description-18', new Date(2020, 8, 19), 'link-18'),
+          ...new Post('title-18', 'description-18', new Date(2020, 8, 19), 'link-18', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-18'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
       ],
     );
@@ -125,39 +127,44 @@ describe('startProducer', () => {
     expect(postQueue.sort((a, b) => a.publishedTime.getTime() - b.publishedTime.getTime())).toEqual(
       [
         {
-          ...new Post('title-15', 'description-15', new Date(2020, 8, 16), 'link-15'),
+          ...new Post('title-15', 'description-15', new Date(2020, 8, 16), 'link-15', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-15'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
         {
-          ...new Post('title-16', 'description-16', new Date(2020, 8, 17), 'link-16'),
+          ...new Post('title-16', 'description-16', new Date(2020, 8, 17), 'link-16', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-16'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
         {
-          ...new Post('title-17', 'description-17', new Date(2020, 8, 18), 'link-17'),
+          ...new Post('title-17', 'description-17', new Date(2020, 8, 18), 'link-17', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-17'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
         {
-          ...new Post('title-18', 'description-18', new Date(2020, 8, 19), 'link-18'),
+          ...new Post('title-18', 'description-18', new Date(2020, 8, 19), 'link-18', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-18'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
         {
-          ...new Post('title-19', 'description-19', new Date(2020, 8, 20), 'link-19'),
+          ...new Post('title-19', 'description-19', new Date(2020, 8, 20), 'link-19', 'author'),
           screenshot: {
             content: Buffer.from('screenshot for link-19'),
             triedTimes: 1,
           },
+          author: '盛京剑客',
         },
       ],
     );

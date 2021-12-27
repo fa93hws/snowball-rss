@@ -11,7 +11,7 @@ describe('ConsumerHandlerForSlack', () => {
   };
 
   const date = new Date();
-  const post = new Post('title-2', 'content-2', date, 'post_url-2');
+  const post = new Post('title-2', 'content-2', date, 'post_url-2', 'author');
 
   it('take first post to given format with attachments', async () => {
     mockPostMessage.mockResolvedValue(Result.ok(null));

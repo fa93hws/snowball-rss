@@ -10,7 +10,7 @@ describe('PostConsumerForEmail', () => {
   const subscribers: string[] = ['user-a@service-a.com', 'user-b@service-b.com'];
 
   const date = new Date();
-  const post = new Post('title-2', 'content-2', date, 'post_url-2');
+  const post = new Post('title-2', 'content-2', date, 'post_url-2', 'author');
 
   it('produces the given format with attachments', async () => {
     const handler = createhandler(fakeMailService, subscribers);

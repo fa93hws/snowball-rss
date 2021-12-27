@@ -124,6 +124,6 @@ export class PostProducer implements IPostProducer {
      * So we will use the result for the first run to update it.
      * That means these result should not be considered as new posts
      */
-    return options.isFirstRun ? [] : newPosts;
+    return options.isFirstRun ? [] : newPosts.map((p) => ({ ...p, author: message.author }));
   }
 }

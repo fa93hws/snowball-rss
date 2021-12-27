@@ -8,7 +8,7 @@ import type { PostWithScreenshot } from '../producer';
 function createPosts(n: number): PostWithScreenshot[] {
   return new Array(n)
     .fill(0)
-    .map((_, idx) => new Post('title', 'content', new Date(0), `post_url_${idx}`));
+    .map((_, idx) => new Post('title', 'content', new Date(0), `post_url_${idx}`, 'author'));
 }
 
 describe('PostConsumerScreenshot', () => {
