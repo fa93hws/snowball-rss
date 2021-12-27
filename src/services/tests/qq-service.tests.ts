@@ -38,7 +38,7 @@ describe('QQService', () => {
 
   describe('login', () => {
     beforeAll(() => {
-      fakeListener.mockImplementation((ev: string, cb: () => any) => {
+      fakeListener.mockImplementation((_: string, cb: () => any) => {
         cb.call(fakeClient);
         return fakeClient;
       });
