@@ -1,4 +1,4 @@
-import type { ICrashService } from '@services/crash-service';
+import type { IExitHelper } from '@services/exit-helper';
 import { fakeLogger } from '@services/fake/logging-service';
 import { Message, Post } from '@services/rss/snowball/message';
 import type { ISnowballRssService } from '@services/rss/snowball/service';
@@ -15,7 +15,10 @@ function postsToOldPostLinks(posts: Post[]): Map<string, Date> {
 
 describe('PostProducer', () => {
   const crash = jest.fn();
-  const crashService: ICrashService = { crash };
+  const exitHelper: IExitHelper = {
+    onExpectedExit: jest.fn(),
+    onUnexpectedExit: crash,
+  };
   const fakeFetch = jest.fn();
   const fakeSnowballRssService: ISnowballRssService = {
     fetch: fakeFetch,
@@ -39,7 +42,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -55,7 +58,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -75,7 +78,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -92,7 +95,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -111,7 +114,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -135,7 +138,7 @@ describe('PostProducer', () => {
       const cloneOfOldPostLinks = new Map(oldPostLinks);
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -160,7 +163,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -179,7 +182,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },
@@ -197,7 +200,7 @@ describe('PostProducer', () => {
       const err = Result.err({ kind: 'network', error: new Error('network error') });
       fakeFetch.mockResolvedValue(err);
       const postProducer = new PostProducer({
-        crashService,
+        exitHelper,
         logger: fakeLogger,
         snowballRssService: fakeSnowballRssService,
       });
@@ -211,7 +214,7 @@ describe('PostProducer', () => {
       const err = Result.err({ kind: 'parse', error: new Error('network error') });
       fakeFetch.mockResolvedValue(err);
       const postProducer = new PostProducer({
-        crashService,
+        exitHelper,
         logger: fakeLogger,
         snowballRssService: fakeSnowballRssService,
       });
@@ -229,7 +232,7 @@ describe('PostProducer', () => {
       fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
       const postProducer = new PostProducer(
         {
-          crashService,
+          exitHelper,
           logger: fakeLogger,
           snowballRssService: fakeSnowballRssService,
         },

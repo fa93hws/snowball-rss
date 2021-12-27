@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import type { ILogger } from '@services/logging-service';
 import { Result } from '@utils/result';
-import type { ICrashService } from './crash-service';
+import type { IExitHelper } from './exit-helper';
 
 export interface IScreenShotService {
   capturePage(url: string): Promise<Result.Result<Buffer, unknown>>;
@@ -16,11 +16,11 @@ async function maybeCloseLoginModal(page: puppeteer.Page) {
 
 export class ScreenShotService implements IScreenShotService {
   private readonly logger: ILogger;
-  private readonly crashService: ICrashService;
+  private readonly exitHelper: IExitHelper;
 
-  constructor(services: { logger: ILogger; crashService: ICrashService }) {
+  constructor(services: { logger: ILogger; exitHelper: IExitHelper }) {
     this.logger = services.logger;
-    this.crashService = services.crashService;
+    this.exitHelper = services.exitHelper;
   }
 
   private async launchBrowser(): Promise<puppeteer.Browser> {
@@ -30,7 +30,7 @@ export class ScreenShotService implements IScreenShotService {
       });
       return browser;
     } catch (e) {
-      return this.crashService.crash(e);
+      return this.exitHelper.onUnexpectedExit(e);
     }
   }
 

@@ -1,4 +1,3 @@
-import { EmailCrashService } from '@services/crash-service';
 import { Logger } from '@services/logging-service';
 import { MailService } from '@services/notification/mail-service';
 import { fakeLogger } from '@services/fake/logging-service';
@@ -6,12 +5,14 @@ import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
 import dotenv from 'dotenv';
+import { ExitHelper } from './exit-helper';
 import type { PostWithScreenshot } from '../post-manager/producer';
 import { PostConsumer } from '../post-manager/consumer';
 import { createhandler } from './consumer-handler';
 import { readVarsFromEnvs } from './read-envs';
 import { Scheduler } from '../scheduler';
 import { startProducer } from '../post-manager/start-producer';
+import { registerOnExit } from '../on-exit';
 
 type CliArgs = {
   sendTestEmail: boolean;
@@ -39,7 +40,7 @@ async function handler(args: CliArgs): Promise<void> {
     },
     logger,
   );
-  const crashService = new EmailCrashService({ logger, mailService }, envVars.adminEmailAdress);
+  const exitHelper = new ExitHelper({ logger, mailService }, envVars.adminEmailAdress);
   const consumerHandler = createhandler(mailService, envVars.subscribers);
   const postConsumer = new PostConsumer(logger, consumerHandler);
 
@@ -59,7 +60,7 @@ async function handler(args: CliArgs): Promise<void> {
     postQueue,
     services: {
       logger,
-      crashService,
+      exitHelper,
     },
   });
 
@@ -73,6 +74,8 @@ async function handler(args: CliArgs): Promise<void> {
     name: 'post consumer for email',
   });
   consumerScheduler.start();
+
+  registerOnExit(logger, exitHelper);
 }
 
 export const emailCommand: CommandModule<{}, CliArgs> = {

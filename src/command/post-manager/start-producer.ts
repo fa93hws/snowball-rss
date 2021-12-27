@@ -1,9 +1,9 @@
-import type { ICrashService } from '@services/crash-service';
 import type { ILogger } from '@services/logging-service';
 import type { IRssHubService } from '@services/rss/rsshub-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import type { IScreenShotService } from '@services/screenshot-service';
 import { ScreenShotService } from '@services/screenshot-service';
+import type { IExitHelper } from '@services/exit-helper';
 import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
 import { PostConsumerScreenshot } from './consumer-screenshot';
@@ -16,14 +16,14 @@ export async function startProducer(params: {
   postQueue: PostWithScreenshot[];
   services: {
     logger: ILogger;
-    crashService: ICrashService;
+    exitHelper: IExitHelper;
     // for stubbing
     rssHubService?: IRssHubService;
     screenshotService?: IScreenShotService;
   };
 }) {
   const { intervalSecond, snowballUserId, postQueue, services } = params;
-  const { logger, crashService } = services;
+  const { logger, exitHelper } = services;
   /**
    * rsshub is using dotenv.config(), so we have to have the import happens after our dotenv.config
    * so that we can config which env files we want to use.
@@ -39,10 +39,10 @@ export async function startProducer(params: {
     services.screenshotService ??
     new ScreenShotService({
       logger,
-      crashService,
+      exitHelper,
     });
   const postProducer = new PostProducer({
-    crashService,
+    exitHelper,
     logger,
     snowballRssService,
   });
