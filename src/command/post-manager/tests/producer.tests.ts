@@ -27,7 +27,13 @@ describe('PostProducer', () => {
     .fill(0)
     .map(
       (_, idx) =>
-        new Post(`title-${idx}`, `content-${idx}`, new Date(2020, 1, idx + 1), `link-${idx}`),
+        new Post(
+          `title-${idx}`,
+          `content-${idx}`,
+          new Date(2020, 1, idx + 1),
+          `link-${idx}`,
+          'author',
+        ),
     );
 
   beforeEach(() => {
@@ -39,7 +45,7 @@ describe('PostProducer', () => {
 
     it('produces nothing', async () => {
       const receivedPosts = posts.slice(10);
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -55,7 +61,7 @@ describe('PostProducer', () => {
 
     it('ignores old post in fetch result when few latest existing posts are deleted', async () => {
       const receivedPosts = posts.slice(5, -5);
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -75,7 +81,7 @@ describe('PostProducer', () => {
 
     it('produces new posts', async () => {
       const receivedPosts = posts.slice(10);
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -92,7 +98,7 @@ describe('PostProducer', () => {
     it('update old post links after producing new posts', async () => {
       const receivedPosts = posts.slice(10);
       const cloneOfOldPostLinks = new Map(oldPostLinks);
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -111,7 +117,7 @@ describe('PostProducer', () => {
       // user posts 5 new posts: 15, 16, 17, 18, 19
       // each fetch will return 10 posts so it will not return older one
       const receivedPosts = [...posts.slice(7, 12), ...posts.slice(15)];
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -145,11 +151,11 @@ describe('PostProducer', () => {
         { oldPostLinks: cloneOfOldPostLinks },
       );
       fakeFetch.mockResolvedValueOnce(
-        Result.ok(new Message(new Date(), [...posts.slice(7, 15), posts[17], posts[18]])),
+        Result.ok(new Message(new Date(), [...posts.slice(7, 15), posts[17], posts[18]], 'author')),
       );
       await postProducer.produceNew('user-id');
       fakeFetch.mockResolvedValueOnce(
-        Result.ok(new Message(new Date(), [posts[1], ...posts.slice(10, 19)])),
+        Result.ok(new Message(new Date(), [posts[1], ...posts.slice(10, 19)], 'author')),
       );
       const newPosts = await postProducer.produceNew('user-id');
       expect(newPosts).toEqual([posts[15], posts[16]]);
@@ -160,7 +166,7 @@ describe('PostProducer', () => {
       // user posts 2 new posts, which is 15 and 16
       // each fetch will return 10 posts so it will return older one
       const receivedPosts = [...posts.slice(3, 11), posts[15], posts[16]];
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -179,7 +185,7 @@ describe('PostProducer', () => {
     it('returns empty array and update old posts link', async () => {
       const receivedPosts = posts.slice(10);
       const myOldPostLinks = new Map<string, Date>();
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,
@@ -229,7 +235,7 @@ describe('PostProducer', () => {
       const oldPostLinks = postsToOldPostLinks(posts.slice(5, 15));
       const receivedPosts = posts.slice(10);
       const cloneOfOldPostLinks = new Map(oldPostLinks);
-      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts)));
+      fakeFetch.mockResolvedValue(Result.ok(new Message(new Date(), receivedPosts, 'author')));
       const postProducer = new PostProducer(
         {
           exitHelper,

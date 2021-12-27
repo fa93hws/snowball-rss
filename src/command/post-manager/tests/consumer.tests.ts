@@ -9,9 +9,9 @@ describe('PostConsumer', () => {
   const postConsumer = new PostConsumer(fakeLogger, hanlder);
 
   const date = new Date();
-  const postWithoutScreenshot = new Post('title-1', 'content-1', date, 'post_url-1');
+  const postWithoutScreenshot = new Post('title-1', 'content-1', date, 'post_url-1', 'author');
   const postWithScreenshot: PostWithScreenshot = {
-    ...new Post('title-2', 'content-2', date, 'post_url-2'),
+    ...new Post('title-2', 'content-2', date, 'post_url-2', 'author'),
     screenshot: {
       content: Buffer.from('fake-screenshot'),
       triedTimes: 1,

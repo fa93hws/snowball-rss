@@ -14,11 +14,11 @@ describe('qq consumer handler', () => {
   it('format post into qq format', async () => {
     sendMessageToGroup.mockResolvedValueOnce(Result.ok(1));
     const handler = createHandler(qqService, 1234567);
-    const post = new Post('title', 'content', new Date(123456789), 'link');
+    const post = new Post('title', 'content', new Date(123456789), 'link', '<author>');
     await handler(post, Buffer.from('screenShot'));
     expect(sendMessageToGroup).toHaveBeenCalledWith(
       1234567,
-      '盛京剑客发布了一条新消息' + EOL + post.link + EOL + '截图发送中',
+      '<author>发布了一条新消息' + EOL + post.link + EOL + '截图发送中',
       Buffer.from('screenShot'),
     );
   });

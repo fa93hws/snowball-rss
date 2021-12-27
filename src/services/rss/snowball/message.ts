@@ -7,6 +7,7 @@ export class Post {
     readonly content: string,
     readonly publishedTime: Date,
     readonly link: string,
+    readonly author: string,
   ) {}
 
   /**
@@ -16,7 +17,7 @@ export class Post {
    * pubDate: string, formated as Mon, 20 Dec 2021 02:43:00 GMT
    * link: string,
    */
-  static fromRaw(raw: any): Result.Result<Post> {
+  static fromRaw(raw: any, author: string): Result.Result<Post> {
     if (raw == null || typeof raw !== 'object') {
       return Result.err(`invalid raw post, expect object, but got ${raw}`);
     }
@@ -37,13 +38,13 @@ export class Post {
       );
     }
     const pubDate = new Date(raw.pubDate);
-    const post = new Post(raw.title, sanitizeHtml(raw.description), pubDate, raw.link);
+    const post = new Post(raw.title, sanitizeHtml(raw.description), pubDate, raw.link, author);
     return Result.ok(post);
   }
 }
 
 export class Message {
-  constructor(readonly updateTime: Date, readonly posts: Post[]) {}
+  constructor(readonly updateTime: Date, readonly posts: Post[], readonly author: string) {}
 
   /**
    * valid shape:
@@ -54,10 +55,20 @@ export class Message {
     if (raw == null || typeof raw !== 'object') {
       return Result.err(`invalid raw message, expect object, but got ${raw}`);
     }
+    const title = raw.title;
+    const suffix = ' 的雪球全部动态';
+    if (typeof title !== 'string') {
+      return Result.err(`invalid raw message, expect title to be string, but got ${raw.title}`);
+    } else if (!title.includes(suffix)) {
+      return Result.err(
+        `invalid title, expect title to be "<author>${suffix}", but got ${raw.title}`,
+      );
+    }
+    const author = title.slice(0, -suffix.length);
     if (!Array.isArray(raw.item)) {
       return Result.err(`invalid raw message, expect item to be an array, but got ${raw.item}`);
     }
-    const postParseResults = (raw.item as any[]).map(Post.fromRaw);
+    const postParseResults = (raw.item as any[]).map((rawPost) => Post.fromRaw(rawPost, author));
     if (postParseResults.some((r) => r.isOk === false)) {
       return Result.err(
         postParseResults
@@ -74,6 +85,7 @@ export class Message {
       );
     }
     const updateDate = new Date(raw.updated);
-    return Result.ok(new Message(updateDate, posts));
+
+    return Result.ok(new Message(updateDate, posts, author));
   }
 }

@@ -43,11 +43,11 @@ describe('fetch', () => {
     expect(mockRequest).toHaveBeenCalledWith('https://rsshub.app/xueqiu/user/uid');
     expect(messageResult.isOk).toBe(true);
     const posts = [
-      new Post('title1', 'description1', new Date('2021-12-22T02:16:58Z'), 'link1'),
-      new Post('title2', 'description2', new Date('2021-12-17T08:31:19Z'), 'link2'),
+      new Post('title1', 'description1', new Date('2021-12-22T02:16:58Z'), 'link1', '盛京剑客'),
+      new Post('title2', 'description2', new Date('2021-12-17T08:31:19Z'), 'link2', '盛京剑客'),
     ];
     expect(Result.unwrap(messageResult)).toEqual(
-      new Message(new Date('2021-12-22T04:44:14.812Z'), posts),
+      new Message(new Date('2021-12-22T04:44:14.812Z'), posts, '盛京剑客'),
     );
   });
 
