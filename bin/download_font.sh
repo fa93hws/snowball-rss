@@ -4,6 +4,9 @@
 set -eu
 set -o pipefail
 
+# We checked in font file `WeiRuanYaHei.ttf` to github as LFS
+# However, github has rate limit on LFS bandwidth, keep downloading it on CI is very expensive.
+# As a consequence, it is uploaded to aws s3 and downloaded manually on CI.
 # $1: local path to store downloaded font.
 download_font() {
   local file_target="$1"
