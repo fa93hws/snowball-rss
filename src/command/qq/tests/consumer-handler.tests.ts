@@ -18,7 +18,7 @@ describe('qq consumer handler', () => {
     await handler(post, Buffer.from('screenShot'));
     expect(sendMessageToGroup).toHaveBeenCalledWith(
       1234567,
-      'content' + EOL + EOL + 'link',
+      '盛京剑客发布了一条新消息' + EOL + post.link + EOL + '截图发送中',
       Buffer.from('screenShot'),
     );
   });
