@@ -41,7 +41,7 @@ export class QQService implements IQQService {
       }
       await this.client
         .on('system.login.qrcode', function (this: Client) {
-          //扫码后按回车登录
+          // 扫码后按回车登录
           process.stdin.once('data', () => {
             this.login();
           });
