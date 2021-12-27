@@ -54,10 +54,10 @@ jobs:
       - name: Download font
         run: bin/download_font.sh WeiRuanYaHei.ttf
         env:
-          AWS_ACCESS_KEY_ID: ${{ AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ AWS_DEFAULT_REGION }}
-          FONT_FILE_S3_PATH: ${{ FONT_FILE_S3_PATH }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          FONT_FILE_S3_PATH: ${{ secrets.FONT_FILE_S3_PATH }}
       - name: Run npm
         run: npm ci
       - name: Run esbuild
