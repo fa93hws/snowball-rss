@@ -17,10 +17,16 @@ async function maybeCloseLoginModal(page: puppeteer.Page) {
 export class ScreenShotService implements IScreenShotService {
   private readonly logger: ILogger;
   private readonly exitHelper: IExitHelper;
+  private readonly addWatermark?: (buffer: Buffer) => Promise<Buffer>;
 
-  constructor(services: { logger: ILogger; exitHelper: IExitHelper }) {
+  constructor(services: {
+    logger: ILogger;
+    exitHelper: IExitHelper;
+    addWatermark?: (buffer: Buffer) => Promise<Buffer>;
+  }) {
     this.logger = services.logger;
     this.exitHelper = services.exitHelper;
+    this.addWatermark = services.addWatermark;
   }
 
   private async launchBrowser(): Promise<puppeteer.Browser> {
@@ -54,6 +60,10 @@ export class ScreenShotService implements IScreenShotService {
       }
       await browser.close();
       this.logger.info(`snapshot has been taken for ${url}`);
+      if (this.addWatermark != null) {
+        const watermarked = await this.addWatermark(buffer);
+        return Result.ok(watermarked);
+      }
       return Result.ok(buffer);
     } catch (e) {
       await browser.close();

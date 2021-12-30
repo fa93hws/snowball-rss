@@ -1,6 +1,8 @@
 import type { IExitHelper } from '@services/exit-helper';
 import fs from 'fs';
 import path from 'path';
+import Jimp from 'jimp';
+import { addTextWaterMark } from '../watermark-service';
 import { ScreenShotService } from '../screenshot-service';
 import { fakeLogger } from '../fake/logging-service';
 
@@ -11,9 +13,22 @@ describe('screenshot', () => {
     onExpectedExit: jest.fn(),
     onUnexpectedExit: jest.fn(),
   };
+
   const service = new ScreenShotService({
     logger: fakeLogger,
     exitHelper: fakeExitHelper,
+    addWatermark: async (buffer) => {
+      return addTextWaterMark({
+        buffer,
+        position: {
+          x: 0.05,
+          y: 0.9,
+          relative: true,
+        },
+        text: 'watermark-in jest',
+        mime: Jimp.MIME_PNG,
+      });
+    },
   });
 
   it('take a screenshot for a given url', async () => {
