@@ -1,6 +1,6 @@
 {
   "name": "snowball-rss",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "format": "prettier --check \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:ts": "tsc --noEmit --project ./tsconfig.check.json",
-    "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub --external:puppeteer --external:oicq"
+    "build": "esbuild src/index.ts --outfile=dist/snowball-rss.js --bundle --platform=node --target=node12 --external:rsshub --external:puppeteer --external:oicq --external:jimp"
   },
   "author": "",
   "license": "ISC",

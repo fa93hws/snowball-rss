@@ -13,7 +13,7 @@ export function createWatermarkHandler(
         y: 0.9,
         relative: true,
       },
-      text: `QQ群 ${groupId}`,
+      text: `QQ Qun: ${groupId}`,
       mime: Jimp.MIME_PNG,
     });
 }

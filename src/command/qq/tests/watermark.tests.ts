@@ -13,7 +13,7 @@ describe('createWatermarkHandler', () => {
         y: 0.9,
         relative: true,
       },
-      text: 'QQ群 123',
+      text: 'QQ Qun: 123',
       mime: Jimp.MIME_PNG,
     });
   });

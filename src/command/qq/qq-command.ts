@@ -64,7 +64,7 @@ async function handler(args: CliArgs) {
       return { shouldContinue: true };
     },
     logger,
-    name: 'post consumer for slack',
+    name: 'post consumer for qq',
   });
   consumerScheduler.start();
 
