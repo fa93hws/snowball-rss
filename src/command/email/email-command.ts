@@ -1,6 +1,7 @@
 import { Logger } from '@services/logging-service';
 import { MailService } from '@services/notification/mail-service';
 import { fakeLogger } from '@services/fake/logging-service';
+import { ScreenShotService } from '@services/screenshot-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import * as path from 'path';
@@ -61,6 +62,7 @@ async function handler(args: CliArgs): Promise<void> {
     services: {
       logger,
       exitHelper,
+      screenshotService: new ScreenShotService({ logger, exitHelper }),
     },
   });
 

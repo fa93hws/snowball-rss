@@ -1,3 +1,4 @@
+import { ScreenShotService } from '@services/screenshot-service';
 import { Logger } from '@services/logging-service';
 import { QQService } from '@services/qq-service';
 import { fakeLogger } from '@services/fake/logging-service';
@@ -11,6 +12,7 @@ import { PostConsumer } from '../post-manager/consumer';
 import { startProducer } from '../post-manager/start-producer';
 import { registerOnExit } from '../on-exit';
 import { ExitHelper } from './exit-helper';
+import { createWatermarkHandler } from './watermark';
 
 type CliArgs = {
   id: number;
@@ -37,6 +39,11 @@ async function handler(args: CliArgs) {
   const exitHelper = new ExitHelper(qqService, logger, args.adminId);
   const consumerHandler = createHandler(qqService, args.groupId);
   const postConsumer = new PostConsumer(logger, consumerHandler);
+  const screenshotService = new ScreenShotService({
+    logger,
+    exitHelper,
+    addWatermark: createWatermarkHandler(args.groupId),
+  });
 
   const postQueue: PostWithScreenshot[] = [];
   startProducer({
@@ -46,6 +53,7 @@ async function handler(args: CliArgs) {
     services: {
       logger,
       exitHelper,
+      screenshotService,
     },
   });
 
@@ -56,7 +64,7 @@ async function handler(args: CliArgs) {
       return { shouldContinue: true };
     },
     logger,
-    name: 'post consumer for slack',
+    name: 'post consumer for qq',
   });
   consumerScheduler.start();
 

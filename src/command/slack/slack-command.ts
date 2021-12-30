@@ -1,6 +1,7 @@
 import { Logger } from '@services/logging-service';
 import { SlackService } from '@services/slack-service';
 import { fakeLogger } from '@services/fake/logging-service';
+import { ScreenShotService } from '@services/screenshot-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import dotenv from 'dotenv';
@@ -57,6 +58,7 @@ async function handler(args: CliArgs) {
     services: {
       logger,
       exitHelper,
+      screenshotService: new ScreenShotService({ logger, exitHelper }),
     },
   });
 

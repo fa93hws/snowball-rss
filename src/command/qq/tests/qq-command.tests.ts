@@ -2,8 +2,6 @@ import yargs from 'yargs';
 import { qqCommand } from '../qq-command';
 
 describe('qqCommandModule', () => {
-  jest.useFakeTimers();
-
   test('default values', async () => {
     const parser = yargs.command(qqCommand).strict(true).help();
 
@@ -77,5 +75,10 @@ describe('qqCommandModule', () => {
       );
     });
     await expect(p).rejects.toThrow('adminId');
+  });
+
+  afterEach(async () => {
+    // jimp want to import something asyncly.. we need to wait for it
+    await new Promise(setImmediate);
   });
 });

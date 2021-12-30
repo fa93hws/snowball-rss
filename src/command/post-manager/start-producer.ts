@@ -2,7 +2,6 @@ import type { ILogger } from '@services/logging-service';
 import type { IRssHubService } from '@services/rss/rsshub-service';
 import { SnowballRssService } from '@services/rss/snowball/service';
 import type { IScreenShotService } from '@services/screenshot-service';
-import { ScreenShotService } from '@services/screenshot-service';
 import type { IExitHelper } from '@services/exit-helper';
 import type { WorkResult } from '../scheduler';
 import { Scheduler } from '../scheduler';
@@ -17,9 +16,9 @@ export async function startProducer(params: {
   services: {
     logger: ILogger;
     exitHelper: IExitHelper;
+    screenshotService: IScreenShotService;
     // for stubbing
     rssHubService?: IRssHubService;
-    screenshotService?: IScreenShotService;
   };
 }) {
   const { intervalSecond, snowballUserId, postQueue, services } = params;
@@ -35,12 +34,6 @@ export async function startProducer(params: {
     titleLengthLimit: 65535,
   });
   const snowballRssService = new SnowballRssService(rssHubService, logger);
-  const screenshotService =
-    services.screenshotService ??
-    new ScreenShotService({
-      logger,
-      exitHelper,
-    });
   const postProducer = new PostProducer({
     exitHelper,
     logger,
@@ -48,7 +41,7 @@ export async function startProducer(params: {
   });
   const postConsumerForScreenshot = new PostConsumerScreenshot({
     logger,
-    screenshotService,
+    screenshotService: services.screenshotService,
   });
 
   async function scheduledWork(runCount: number): Promise<WorkResult> {
