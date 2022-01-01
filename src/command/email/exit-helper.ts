@@ -34,7 +34,7 @@ export class ExitHelper implements IExitHelper {
         },
       ];
     } else {
-      this.logger.error('can not attach log file in crash report. It should be at ' + logFilePath);
+      this.logger.error(`can not attach log file in crash report. It should be at ${  logFilePath}`);
     }
     await this.mailService.send(mail);
     this.logger.error(`app crashed, reports has been sent to ${this.adminEmailAdress}`);

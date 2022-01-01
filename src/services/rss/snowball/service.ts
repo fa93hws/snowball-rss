@@ -17,14 +17,14 @@ export class SnowballRssService implements ISnowballRssService {
 
   fetch(uid: string): Promise<Result.Result<Message, FetchError>> {
     const url = `https://rsshub.app/xueqiu/user/${uid}`;
-    this.logger.verbose('start fetching from ' + url);
+    this.logger.verbose(`start fetching from ${  url}`);
     return new Promise((resolve) => {
       this.rssHubService
         .request(url)
         .then((rawMessage) => {
           const messageResult = Message.fromRaw(rawMessage);
           if (!messageResult.isOk) {
-            this.logger.error('parsing error: ' + messageResult.error);
+            this.logger.error(`parsing error: ${  messageResult.error}`);
             return resolve(
               Result.err({
                 kind: 'parse',

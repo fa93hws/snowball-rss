@@ -53,10 +53,10 @@ export class SlackService implements ISlackService {
       token: this.userToken,
     });
     if (!response.ok || response.file == null || response.file.id == null) {
-      this.logger.error('failed to upload file: ' + JSON.stringify(response));
+      this.logger.error(`failed to upload file: ${  JSON.stringify(response)}`);
       return Result.err(new Error(`error uploading file, error is ${response.error}`));
     } else {
-      this.logger.verbose('file uploaded, file id: ' + response.file.id);
+      this.logger.verbose(`file uploaded, file id: ${  response.file.id}`);
       return Result.ok(response.file.id);
     }
   }
@@ -67,13 +67,13 @@ export class SlackService implements ISlackService {
       file: fileId,
     });
     if (!response.ok || response.file == null) {
-      this.logger.error('failed to make file public: ' + JSON.stringify(response));
+      this.logger.error(`failed to make file public: ${  JSON.stringify(response)}`);
       return Result.err(
         new Error(`error making file public, fildId is ${fileId}, error is ${response.error}`),
       );
     } else if (response.file.permalink_public == null || response.file.url_private == null) {
       this.logger.error(
-        'file uploaded, but no permalink_public or url_private got returned: ' + response,
+        `file uploaded, but no permalink_public or url_private got returned: ${  response}`,
       );
       return Result.err(
         new Error('file uploaded, but no permalink_public or url_private got returned'),
@@ -87,8 +87,8 @@ export class SlackService implements ISlackService {
         return Result.err(new Error(`wrong permalink_public format: ${publicPermLink}`));
       }
       const pubSecret = parsedPermalink[parsedPermalink.length - 1];
-      const url = privateUrl + `?pub_secret=${pubSecret}`;
-      this.logger.verbose('file shared, url: ' + url);
+      const url = `${privateUrl  }?pub_secret=${pubSecret}`;
+      this.logger.verbose(`file shared, url: ${  url}`);
       return Result.ok(url);
     }
   }
@@ -146,10 +146,10 @@ export class SlackService implements ISlackService {
         text: params.abstract,
       });
       if (!postMessageResult.ok) {
-        this.logger.error('error posting message: ' + JSON.stringify(postMessageResult));
-        return Result.err(new Error('error posting message: ' + postMessageResult.error));
+        this.logger.error(`error posting message: ${  JSON.stringify(postMessageResult)}`);
+        return Result.err(new Error(`error posting message: ${  postMessageResult.error}`));
       }
-      this.logger.info('message posted, content: ' + JSON.stringify(blocks));
+      this.logger.info(`message posted, content: ${  JSON.stringify(blocks)}`);
       return Result.ok(1);
     } catch (e) {
       return Result.err(e);

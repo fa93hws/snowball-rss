@@ -26,6 +26,7 @@ module.exports = {
 
     'no-console': 'error',
     'object-shorthand': 'error',
+    'prefer-template': 'error',
     eqeqeq: ['error', 'smart'],
 
     'jest/no-test-callback': 'off',

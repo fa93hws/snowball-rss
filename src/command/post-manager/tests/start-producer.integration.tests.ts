@@ -30,10 +30,10 @@ describe('startProducer', () => {
   test('happy path', async () => {
     // setup fake rsshub service
     const rawItems = new Array(20).fill(0).map((_, i) => ({
-      title: 'title-' + i,
-      description: 'description-' + i,
+      title: `title-${  i}`,
+      description: `description-${  i}`,
       pubDate: new Date(2020, 8, i + 1).toISOString(),
-      link: 'link-' + i,
+      link: `link-${  i}`,
     }));
     const getRawMessageWithoutItem = () => ({
       lastBuildDate: new Date().toISOString(),

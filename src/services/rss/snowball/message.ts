@@ -70,10 +70,10 @@ export class Message {
     const postParseResults = (raw.item as any[]).map((rawPost) => Post.fromRaw(rawPost, author));
     if (postParseResults.some((r) => r.isOk === false)) {
       return Result.err(
-        postParseResults
+        `${postParseResults
           .filter((r): r is Result.Err => r.isOk === false)
           .map((r) => r.error)
-          .join('\n') + `raw: ${raw}`,
+          .join('\n')  }raw: ${raw}`,
       );
     }
     const posts = postParseResults.map(Result.unwrap);
