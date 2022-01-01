@@ -74,8 +74,8 @@ export class QQService implements IQQService {
       this.logger.error(errorMsg);
       return Result.err('not logged in');
     } else if (!this.client.fl.has(userId)) {
-      this.logger.error('no friend with id ' + userId);
-      return Result.err('no friend with id ' + userId);
+      this.logger.error(`no friend with id ${userId}`);
+      return Result.err(`no friend with id ${userId}`);
     }
     const user = this.client.pickFriend(userId, true);
     try {
@@ -99,8 +99,8 @@ export class QQService implements IQQService {
       this.logger.error(errorMsg);
       return Result.err(errorMsg);
     } else if (!this.client.gl.has(groupId)) {
-      this.logger.error('no group with id ' + groupId);
-      return Result.err('no group with id ' + groupId);
+      this.logger.error(`no group with id ${groupId}`);
+      return Result.err(`no group with id ${groupId}`);
     }
     const group = this.client.pickGroup(groupId, true);
     try {
@@ -108,7 +108,7 @@ export class QQService implements IQQService {
       this.logger.info(`${message} posted in group ${groupId}`);
       if (image != null) {
         await group.sendMsg(segment.image(image));
-        this.logger.info('image sent to group ' + groupId);
+        this.logger.info(`image sent to group ${groupId}`);
       }
       return Result.ok(1);
     } catch (e) {

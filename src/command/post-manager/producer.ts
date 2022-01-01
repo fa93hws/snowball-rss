@@ -97,9 +97,9 @@ export class PostProducer implements IPostProducer {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       if (fetchResult.error.kind === 'parse') {
-        return this.exitHelper.onUnexpectedExit('parsing error: ' + fetchResult.error.message);
+        return this.exitHelper.onUnexpectedExit(`parsing error: ${fetchResult.error.message}`);
       } else {
-        this.logger.error('fetch error: ' + fetchResult.error.message);
+        this.logger.error(`fetch error: ${fetchResult.error.message}`);
         return [];
       }
     }
@@ -115,7 +115,7 @@ export class PostProducer implements IPostProducer {
     for (const newPost of newPosts) {
       this.oldPostLinks.set(newPost.link, newPost.publishedTime);
       if (!options.isFirstRun) {
-        this.logger.info('found new post, push to queue, post is ' + JSON.stringify(newPost));
+        this.logger.info(`found new post, push to queue, post is ${JSON.stringify(newPost)}`);
       }
     }
     this.maybeRemoveSomeOldPostLinks();

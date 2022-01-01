@@ -18,7 +18,7 @@ describe('qq consumer handler', () => {
     await handler(post, Buffer.from('screenShot'));
     expect(sendMessageToGroup).toHaveBeenCalledWith(
       1234567,
-      '<author>发布了一条新消息' + EOL + post.link + EOL + '截图发送中',
+      `<author>发布了一条新消息${EOL}${post.link}${EOL}截图发送中`,
       Buffer.from('screenShot'),
     );
   });
@@ -66,7 +66,7 @@ describe('qq consumer handler', () => {
     await handler(post, Buffer.from('screenShot'));
     expect(sendMessageToGroup).toHaveBeenCalledWith(
       1234567,
-      '<author>发布了一条新消息' + EOL + post.link + EOL + '截图发送中' + EOL + '解析链接失败',
+      `<author>发布了一条新消息${EOL}${post.link}${EOL}截图发送中${EOL}解析链接失败`,
       Buffer.from('screenShot'),
     );
     expect(fakeLogErr).toHaveBeenCalled();
