@@ -40,7 +40,7 @@ export function createHandler(qqService: IQQService, groupId: number, logger: IL
       logger.info(`find links: ${JSON.stringify(linksResult)}`);
       const links = linksResult.value;
       if (links.length > 0) {
-        message.push('监测到原文中有链接，依次为(包括@用户)');
+        message.push('监测到原文中有链接，依次为');
         for (const [name, link] of links) {
           message.push(`${name}: ${link}`);
         }

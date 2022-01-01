@@ -45,7 +45,7 @@ describe('qq consumer handler', () => {
         '<author>发布了一条新消息',
         'link',
         '截图发送中',
-        '监测到原文中有链接，依次为(包括@用户)',
+        '监测到原文中有链接，依次为',
         'baidu: http://www.baidu.com',
         '@user: http://www.user.com',
         '网页链接: http://www.link.com',
