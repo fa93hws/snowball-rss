@@ -2,6 +2,7 @@ import { Result } from '@utils/result';
 import { createClient, segment } from 'oicq';
 import type { Client } from 'oicq';
 import type { ILogger } from './logging-service';
+import type { IExitHelper } from './exit-helper';
 
 export interface IQQService {
   sendMessageToGroup(
@@ -17,10 +18,22 @@ export class QQService implements IQQService {
   private loggedIn = false;
   private readonly client: Client;
   private readonly logger: ILogger;
+  private readonly exitHelper: IExitHelper;
 
-  constructor(params: { account: number; logger: ILogger }) {
+  constructor(params: { account: number; logger: ILogger; exitHelper: IExitHelper }) {
     this.client = createClient(params.account);
     this.logger = params.logger;
+    this.exitHelper = params.exitHelper;
+  }
+
+  private async maybeStopOnLoggedout(error: unknown) {
+    if (error == null || typeof error !== 'object') {
+      return;
+    }
+    if ((error as any)['code'] === -1) {
+      this.logger.error('account is logged out');
+      await this.exitHelper.onUnexpectedExit('account is logged out');
+    }
   }
 
   private waitOnline(): Promise<void> {
@@ -69,7 +82,9 @@ export class QQService implements IQQService {
       await user.sendMsg(message);
       return Result.ok(1);
     } catch (e) {
+      this.logger.error(`failed to send message to admin ${userId}`);
       this.logger.error(e);
+      await this.maybeStopOnLoggedout(e);
       return Result.err(e);
     }
   }
@@ -97,7 +112,9 @@ export class QQService implements IQQService {
       }
       return Result.ok(1);
     } catch (e) {
+      this.logger.error(`failed to send message to group ${groupId}`);
       this.logger.error(e);
+      await this.maybeStopOnLoggedout(e);
       return Result.err(e);
     }
   }

@@ -2,9 +2,11 @@ import { ScreenShotService } from '@services/screenshot-service';
 import { Logger } from '@services/logging-service';
 import { QQService } from '@services/qq-service';
 import { fakeLogger } from '@services/fake/logging-service';
+import { HttpsService } from '@services/https-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import path from 'path';
+import dotenv from 'dotenv';
 import { createHandler } from './consumer-handler';
 import { Scheduler } from '../scheduler';
 import type { PostWithScreenshot } from '../post-manager/producer';
@@ -13,6 +15,7 @@ import { startProducer } from '../post-manager/start-producer';
 import { registerOnExit } from '../on-exit';
 import { ExitHelper } from './exit-helper';
 import { createWatermarkHandler } from './watermark';
+import { readVarsFromEnvs } from './read-env';
 
 type CliArgs = {
   id: number;
@@ -24,6 +27,7 @@ type CliArgs = {
 
   doNotRun: boolean;
   useFakeLogger: boolean;
+  dotEnvFile: string;
 };
 
 async function handler(args: CliArgs) {
@@ -33,10 +37,18 @@ async function handler(args: CliArgs) {
   const logger = args.useFakeLogger
     ? fakeLogger
     : new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
-  const qqService = new QQService({ account: args.id, logger });
+  logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
+  dotenv.config({ path: args.dotEnvFile });
+  const envs = readVarsFromEnvs();
+  const exitHelper = new ExitHelper({
+    httpService: new HttpsService(),
+    account: args.id,
+    logger,
+    qmsgToken: envs.qmsgToken,
+  });
+  const qqService = new QQService({ account: args.id, logger, exitHelper });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
-  const exitHelper = new ExitHelper(qqService, logger, args.adminId);
   const consumerHandler = createHandler(qqService, args.groupId);
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
@@ -109,6 +121,11 @@ export const qqCommand: CommandModule<{}, CliArgs> = {
         type: 'boolean',
         describe: 'if true, fake logger will be used. For test purpose only!',
         default: false,
+      })
+      .option('dotEnvFile', {
+        type: 'string',
+        describe: 'path to .env file',
+        default: '.env',
       })
       .option('doNotRun', {
         type: 'boolean',
