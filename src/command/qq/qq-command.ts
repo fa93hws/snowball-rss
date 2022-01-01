@@ -34,9 +34,12 @@ async function handler(args: CliArgs) {
   if (args.doNotRun) {
     return;
   }
+  const repoRoot = getRepoRoot();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { version } = require(path.join(repoRoot, 'package.json'));
   const logger = args.useFakeLogger
     ? fakeLogger
-    : new Logger({ dirname: path.join(getRepoRoot(), 'logs', 'app') });
+    : new Logger({ dirname: path.join(repoRoot, 'logs', 'app') });
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envs = readVarsFromEnvs();
@@ -48,7 +51,7 @@ async function handler(args: CliArgs) {
   });
   const qqService = new QQService({ account: args.id, logger, exitHelper });
   await qqService.login(args.password);
-  await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
+  await qqService.sendMessageToUser(args.adminId, `群聊机器人已启动, 当前版本: ${version}`);
   const consumerHandler = createHandler(qqService, args.groupId, logger);
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
