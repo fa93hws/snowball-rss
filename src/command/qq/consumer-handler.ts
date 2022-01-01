@@ -33,7 +33,7 @@ export function createHandler(qqService: IQQService, groupId: number, logger: IL
     const linksResult = extractLinks(post.content, logger);
     // Text message may cause qq account be baned for a day.
     // We will send screenshot and link only
-    const message = [`${post.author  }发布了一条新消息`, post.link, '截图发送中'];
+    const message = [`${post.author}发布了一条新消息`, post.link, '截图发送中'];
     if (!linksResult.isOk) {
       message.push(linksResult.error);
     } else {

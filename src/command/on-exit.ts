@@ -17,7 +17,7 @@ export function registerOnExit(logger: ILogger, exitHelper: IExitHelper) {
     'SIGTERM',
   ].forEach(function (sig) {
     process.on(sig, async function () {
-      logger.info(`service down from signal: ${  sig}`);
+      logger.info(`service down from signal: ${sig}`);
       await exitHelper.onExpectedExit(sig);
     });
   });
