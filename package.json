@@ -33,6 +33,7 @@
     "eslint-plugin-jest": "^25.3.0",
     "jest": "^27.4.5",
     "jimp": "^0.16.1",
+    "node-html-parser": "^5.2.0",
     "nodemailer": "^6.7.2",
     "prettier": "^2.5.1",
     "sanitize-html": "^2.6.1",
