@@ -1,16 +1,18 @@
 import type { IMailService, Mail } from '@services/notification/mail-service';
 import type { Post } from '@services/rss/snowball/message';
 import type { Result } from '@utils/result';
+import sanitizeHtml from 'sanitize-html';
 import { EOL } from 'os';
 
 function toMail(post: Post, screenshot: Buffer, subscribers: readonly string[]): Mail {
+  const content = sanitizeHtml(post.content);
   const mailText = [
     'Title:',
     post.title,
     '',
     '',
     'Body:',
-    post.content,
+    content,
     '',
     '',
     `Published at: ${post.publishedTime}`,

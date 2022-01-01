@@ -49,7 +49,7 @@ async function handler(args: CliArgs) {
   const qqService = new QQService({ account: args.id, logger, exitHelper });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, '群聊机器人已启动');
-  const consumerHandler = createHandler(qqService, args.groupId);
+  const consumerHandler = createHandler(qqService, args.groupId, logger);
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
     logger,

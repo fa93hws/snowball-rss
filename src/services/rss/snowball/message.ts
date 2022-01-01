@@ -1,5 +1,4 @@
 import { Result } from '@utils/result';
-import { sanitizeHtml } from '@utils/sanitize';
 
 export class Post {
   constructor(
@@ -38,7 +37,7 @@ export class Post {
       );
     }
     const pubDate = new Date(raw.pubDate);
-    const post = new Post(raw.title, sanitizeHtml(raw.description), pubDate, raw.link, author);
+    const post = new Post(raw.title, raw.description, pubDate, raw.link, author);
     return Result.ok(post);
   }
 }
