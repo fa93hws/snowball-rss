@@ -7,7 +7,7 @@ describe('https service', () => {
   const fakeGetOn = jest.fn();
   const fakeResp = { on: fakeOn };
   const fakeGetResult = { on: fakeGetOn };
-  const fakeGet = jest.spyOn(https, 'get').mockImplementation((url: any, cb: any) => {
+  const fakeGet = jest.spyOn(https, 'get').mockImplementation((_: any, cb: any) => {
     cb(fakeResp);
     return fakeGetResult as any;
   });

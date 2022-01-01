@@ -112,7 +112,7 @@ describe('QQService', () => {
       const service = createQQService();
       await service.login('pass');
       fakeSendMsg.mockRejectedValueOnce({ code: -1 });
-      const result = await service.sendMessageToUser(123, 'abcd');
+      await service.sendMessageToUser(123, 'abcd');
       expect(fakeExit).toHaveBeenCalled();
     });
   });
@@ -152,7 +152,7 @@ describe('QQService', () => {
       const service = createQQService();
       await service.login('pass');
       fakeSendMsg.mockRejectedValueOnce({ code: -1 });
-      const result = await service.sendMessageToGroup(123, 'abcd');
+      await service.sendMessageToGroup(123, 'abcd');
       expect(fakeExit).toHaveBeenCalled();
     });
 
