@@ -3,6 +3,7 @@ import { QQService } from '@services/qq-service';
 import { Result } from '@utils/result';
 import * as oicq from 'oicq';
 import type { Client } from 'oicq';
+import type { IExitHelper } from '@services/exit-helper';
 
 describe('QQService', () => {
   const fakeListener = jest.fn();
@@ -22,6 +23,11 @@ describe('QQService', () => {
     pickFriend: () => fakeUser,
     pickGroup: () => fakeGroup,
   } as any;
+  const fakeExit = jest.fn();
+  const exitHelper: IExitHelper = {
+    onUnexpectedExit: fakeExit,
+    onExpectedExit: jest.fn(),
+  };
 
   const fakeStdin = jest
     .spyOn(process.stdin, 'once')
@@ -34,6 +40,7 @@ describe('QQService', () => {
     new QQService({
       account: 12345,
       logger: fakeLogger,
+      exitHelper,
     });
 
   describe('login', () => {
@@ -100,6 +107,14 @@ describe('QQService', () => {
       const result = await service.sendMessageToUser(123, 'abcd');
       expect(result).toEqual(Result.err('rejected'));
     });
+
+    it('exit if logged out', async () => {
+      const service = createQQService();
+      await service.login('pass');
+      fakeSendMsg.mockRejectedValueOnce({ code: -1 });
+      await service.sendMessageToUser(123, 'abcd');
+      expect(fakeExit).toHaveBeenCalled();
+    });
   });
 
   describe('sendMessageToGroup', () => {
@@ -133,6 +148,14 @@ describe('QQService', () => {
       expect(result).toEqual(Result.err('rejected'));
     });
 
+    it('exit if logged out', async () => {
+      const service = createQQService();
+      await service.login('pass');
+      fakeSendMsg.mockRejectedValueOnce({ code: -1 });
+      await service.sendMessageToGroup(123, 'abcd');
+      expect(fakeExit).toHaveBeenCalled();
+    });
+
     it('uploads image', async () => {
       const service = createQQService();
       await service.login('pass');
@@ -147,6 +170,7 @@ describe('QQService', () => {
   afterEach(() => {
     fakeCreateClient.mockClear();
     fakeListener.mockClear();
+    fakeExit.mockClear();
     fakeSendMsg.mockRestore();
   });
 
