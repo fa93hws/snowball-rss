@@ -2,13 +2,15 @@ import { readVarsFromEnvs } from '../read-env';
 
 describe('readVarsFromEnvs', () => {
   const fakeEnv = {
-    QMSG_TOKEN: 'qmsg token',
+    DISCORD_BOT_TOKEN: 'discordBotToken',
+    DISCORD_CHANNEL_ID: 'discordChannelId',
   };
 
   it('parse env to object', () => {
     const envVars = readVarsFromEnvs(fakeEnv);
     expect(envVars).toEqual({
-      qmsgToken: 'qmsg token',
+      discordBotToken: 'discordBotToken',
+      discordChannelId: 'discordChannelId',
     });
   });
 

@@ -1,49 +1,33 @@
 import type { IExitHelper } from '@services/exit-helper';
-import type { IHttpService } from '@services/https-service';
-import type { ILogger } from '@services/logging-service';
-import type { Result } from '@utils/result';
+import type { IDiscordService } from '@services/discord-service';
+import { EOL } from 'os';
 
 export class ExitHelper implements IExitHelper {
-  private readonly qmsgUrlPrefix;
-  private readonly httpService: IHttpService;
+  private readonly discordService: IDiscordService;
   private readonly account: number;
-  private readonly logger: ILogger;
+  private readonly discordChannelId: string;
 
   constructor(params: {
-    httpService: IHttpService;
+    discordService: IDiscordService;
     account: number;
-    logger: ILogger;
-    qmsgToken: string;
+    discordChannelId: string;
   }) {
-    this.qmsgUrlPrefix = `https://qmsg.zendee.cn/send/${params.qmsgToken}`;
-    this.httpService = params.httpService;
-    this.logger = params.logger;
+    this.discordService = params.discordService;
     this.account = params.account;
+    this.discordChannelId = params.discordChannelId;
   }
 
-  private maybeLogError(result: Result.Result<unknown, Error>) {
-    if (!result.isOk) {
-      this.logger.error('failed to send message to QMSG, error is');
-      this.logger.error(result.error);
-    }
-  }
-
-  async onUnexpectedExit(): Promise<never> {
-    const msg = `非正常服务下线${Array.from(this.account.toString()).join('-')}`;
-    const result = await this.httpService.get(
-      `${this.qmsgUrlPrefix}?msg=${encodeURIComponent(msg)}`,
+  async onUnexpectedExit(reason: string): Promise<never> {
+    const message = ['服务出错(unexpected)', `QQ账号: ${this.account}`, `错误原因: ${reason}`].join(
+      EOL,
     );
-    this.maybeLogError(result);
+    await this.discordService.sendMessage(this.discordChannelId, message);
     process.exit(1);
   }
 
-  async onExpectedExit(): Promise<never> {
-    const msg = `服务下线${Array.from(this.account.toString()).join('-')}`;
-    const result = await this.httpService.get(
-      `${this.qmsgUrlPrefix}?msg=${encodeURIComponent(msg)}`,
-    );
-    this.maybeLogError(result);
-
+  async onExpectedExit(reason: string): Promise<never> {
+    const message = ['服务下线(expected)', `QQ账号: ${this.account}`, `原因: ${reason}`].join(EOL);
+    await this.discordService.sendMessage(this.discordChannelId, message);
     process.exit(1);
   }
 }

@@ -1,22 +1,20 @@
-import { fakeLogger } from '@services/fake/logging-service';
-import type { IHttpService } from '@services/https-service';
+import type { IDiscordService } from '@services/discord-service';
 import { Result } from '@utils/result';
 import { ExitHelper } from '../exit-helper';
+import { EOL } from 'os';
 
 describe('SlackCrashService', () => {
-  const fakeGet = jest.fn();
-  const fakeHttpService: IHttpService = {
-    get: fakeGet,
+  const fakeSendMsg = jest.fn();
+  const fakeDiscordService: IDiscordService = {
+    sendMessage: fakeSendMsg,
+    login: jest.fn(),
+    logout: jest.fn(),
   };
   const fakeLogError = jest.fn();
   const exitHelper = new ExitHelper({
-    httpService: fakeHttpService,
-    logger: {
-      ...fakeLogger,
-      error: fakeLogError,
-    },
+    discordService: fakeDiscordService,
+    discordChannelId: 'channel',
     account: 123456,
-    qmsgToken: 'qmsg-token',
   });
 
   const mockedExit = jest
@@ -24,39 +22,27 @@ describe('SlackCrashService', () => {
     .mockImplementation(() => undefined as any as never);
 
   it('sends crash message', async () => {
-    fakeGet.mockResolvedValueOnce(Result.ok({}));
-    await exitHelper.onUnexpectedExit();
-    expect(fakeGet).toHaveBeenCalledWith(
-      `https://qmsg.zendee.cn/send/qmsg-token?msg=${encodeURIComponent(
-        '非正常服务下线',
-      )}1-2-3-4-5-6`,
+    fakeSendMsg.mockResolvedValueOnce(Result.ok({}));
+    await exitHelper.onUnexpectedExit('reason');
+    expect(fakeSendMsg).toHaveBeenCalledWith(
+      'channel',
+      ['服务出错(unexpected)', 'QQ账号: 123456', '错误原因: reason'].join(EOL),
     );
     expect(mockedExit).toHaveBeenCalledWith(1);
-  });
-
-  it('log error if failed to send crash message', async () => {
-    fakeGet.mockResolvedValueOnce(Result.err('error-1'));
-    await exitHelper.onUnexpectedExit();
-    expect(fakeLogError).toHaveBeenCalledWith('error-1');
   });
 
   it('sends message on expected exit', async () => {
-    fakeGet.mockResolvedValueOnce(Result.ok({}));
-    await exitHelper.onExpectedExit();
-    expect(fakeGet).toHaveBeenCalledWith(
-      `https://qmsg.zendee.cn/send/qmsg-token?msg=${encodeURIComponent('服务下线')}1-2-3-4-5-6`,
+    fakeSendMsg.mockResolvedValueOnce(Result.ok({}));
+    await exitHelper.onExpectedExit('reason');
+    expect(fakeSendMsg).toHaveBeenCalledWith(
+      'channel',
+      ['服务下线(expected)', 'QQ账号: 123456', '原因: reason'].join(EOL),
     );
     expect(mockedExit).toHaveBeenCalledWith(1);
   });
 
-  it('log error if failed to send message on expected exit', async () => {
-    fakeGet.mockResolvedValueOnce(Result.err('error-2'));
-    await exitHelper.onExpectedExit();
-    expect(fakeLogError).toHaveBeenCalledWith('error-2');
-  });
-
   afterEach(() => {
-    fakeGet.mockRestore();
+    fakeSendMsg.mockRestore();
     mockedExit.mockClear();
     fakeLogError.mockClear();
   });

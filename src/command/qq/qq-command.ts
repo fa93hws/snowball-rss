@@ -2,7 +2,7 @@ import { ScreenShotService } from '@services/screenshot-service';
 import { Logger } from '@services/logging-service';
 import { QQService } from '@services/qq-service';
 import { fakeLogger } from '@services/fake/logging-service';
-import { HttpsService } from '@services/https-service';
+import { DiscordService } from '@services/discord-service';
 import { getRepoRoot } from '@utils/path';
 import type { CommandModule } from 'yargs';
 import path from 'path';
@@ -43,15 +43,17 @@ async function handler(args: CliArgs) {
   logger.debug(`Loading dotenv file: ${args.dotEnvFile}`);
   dotenv.config({ path: args.dotEnvFile });
   const envs = readVarsFromEnvs();
+  const discordService = new DiscordService({ logger });
+  await discordService.login(envs.discordBotToken);
   const exitHelper = new ExitHelper({
-    httpService: new HttpsService(),
+    discordService,
     account: args.id,
-    logger,
-    qmsgToken: envs.qmsgToken,
+    discordChannelId: envs.discordChannelId,
   });
   const qqService = new QQService({ account: args.id, logger, exitHelper });
   await qqService.login(args.password);
   await qqService.sendMessageToUser(args.adminId, `群聊机器人已启动, 当前版本: ${version}`);
+  await discordService.sendMessage(envs.discordChannelId, `服务上线, QQ账号: ${args.id}`);
   const consumerHandler = createHandler(qqService, args.groupId, logger);
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
