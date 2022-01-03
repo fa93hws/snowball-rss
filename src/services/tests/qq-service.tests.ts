@@ -75,6 +75,15 @@ describe('QQService', () => {
       const result = await service.login('pass');
       expect(result).toEqual(Result.err('abc'));
     });
+
+    it('exit if logged out', async () => {
+      const service = createQQService();
+      await service.login('pass');
+      expect(fakeListener).toHaveBeenCalledWith('system.offline', expect.anything());
+      const cb = fakeListener.mock.calls.filter(([event]) => event === 'system.offline')[0][1];
+      cb();
+      expect(fakeExit).toHaveBeenCalled();
+    });
   });
 
   describe('sendMessageToUser', () => {
@@ -107,14 +116,6 @@ describe('QQService', () => {
       const result = await service.sendMessageToUser(123, 'abcd');
       expect(result).toEqual(Result.err('rejected'));
     });
-
-    it('exit if logged out', async () => {
-      const service = createQQService();
-      await service.login('pass');
-      fakeSendMsg.mockRejectedValueOnce({ code: -1 });
-      await service.sendMessageToUser(123, 'abcd');
-      expect(fakeExit).toHaveBeenCalled();
-    });
   });
 
   describe('sendMessageToGroup', () => {
@@ -146,14 +147,6 @@ describe('QQService', () => {
       fakeSendMsg.mockRejectedValueOnce('rejected');
       const result = await service.sendMessageToGroup(123, 'abcd');
       expect(result).toEqual(Result.err('rejected'));
-    });
-
-    it('exit if logged out', async () => {
-      const service = createQQService();
-      await service.login('pass');
-      fakeSendMsg.mockRejectedValueOnce({ code: -1 });
-      await service.sendMessageToGroup(123, 'abcd');
-      expect(fakeExit).toHaveBeenCalled();
     });
 
     it('uploads image', async () => {
