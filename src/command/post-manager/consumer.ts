@@ -10,7 +10,7 @@ export interface IPostConsumer {
 export class PostConsumer implements IPostConsumer {
   constructor(
     private readonly logger: ILogger,
-    private readonly handler: (post: Post, image: Buffer) => Promise<Result.Result<any, any>>,
+    private readonly handler: (post: Post, image: Buffer) => Promise<Result.T<any, any>>,
   ) {}
 
   async consumeOne(queue: PostWithScreenshot[]): Promise<void> {

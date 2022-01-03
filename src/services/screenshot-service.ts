@@ -4,7 +4,7 @@ import { Result } from '@utils/result';
 import type { IExitHelper } from './exit-helper';
 
 export interface IScreenShotService {
-  capturePage(url: string): Promise<Result.Result<Buffer, unknown>>;
+  capturePage(url: string): Promise<Result.T<Buffer>>;
 }
 
 async function maybeCloseLoginModal(page: puppeteer.Page) {
@@ -40,7 +40,7 @@ export class ScreenShotService implements IScreenShotService {
     }
   }
 
-  async capturePage(url: string): Promise<Result.Result<Buffer, unknown>> {
+  async capturePage(url: string): Promise<Result.T<Buffer>> {
     this.logger.info(`taking snapshot for ${url}`);
     const browser = await this.launchBrowser();
     try {
@@ -65,10 +65,10 @@ export class ScreenShotService implements IScreenShotService {
         return Result.ok(watermarked);
       }
       return Result.ok(buffer);
-    } catch (e) {
+    } catch (e: any) {
       await browser.close();
       this.logger.error(`failed to take snapshot for ${url}, error is`, e);
-      return Result.err(e);
+      return Result.err(new Error(e));
     }
   }
 }

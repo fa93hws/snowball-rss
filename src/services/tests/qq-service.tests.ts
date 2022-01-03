@@ -73,7 +73,7 @@ describe('QQService', () => {
       fakeLogin.mockRejectedValueOnce('abc');
       const service = createQQService();
       const result = await service.login('pass');
-      expect(result).toEqual(Result.err('abc'));
+      expect(result).toEqual(Result.err(new Error('abc')));
     });
 
     it('exit if logged out', async () => {
@@ -114,7 +114,7 @@ describe('QQService', () => {
       await service.login('pass');
       fakeSendMsg.mockRejectedValueOnce('rejected');
       const result = await service.sendMessageToUser(123, 'abcd');
-      expect(result).toEqual(Result.err('rejected'));
+      expect(result).toEqual(Result.err(new Error('rejected')));
     });
   });
 
@@ -146,7 +146,7 @@ describe('QQService', () => {
       await service.login('pass');
       fakeSendMsg.mockRejectedValueOnce('rejected');
       const result = await service.sendMessageToGroup(123, 'abcd');
-      expect(result).toEqual(Result.err('rejected'));
+      expect(result).toEqual(Result.err(new Error('rejected')));
     });
 
     it('uploads image', async () => {

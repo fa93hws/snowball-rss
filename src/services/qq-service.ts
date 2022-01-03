@@ -5,13 +5,9 @@ import type { ILogger } from './logging-service';
 import type { IExitHelper } from './exit-helper';
 
 export interface IQQService {
-  sendMessageToGroup(
-    groupId: number,
-    message: string,
-    image?: Buffer,
-  ): Promise<Result.Result<1, unknown>>;
+  sendMessageToGroup(groupId: number, message: string, image?: Buffer): Promise<Result.T<1>>;
 
-  sendMessageToUser(userId: number, message: string): Promise<Result.Result<1, unknown>>;
+  sendMessageToUser(userId: number, message: string): Promise<Result.T<1>>;
 }
 
 export class QQService implements IQQService {
@@ -41,7 +37,7 @@ export class QQService implements IQQService {
     });
   }
 
-  async login(password?: string): Promise<Result.Result<1, unknown>> {
+  async login(password?: string): Promise<Result.T<1>> {
     this.addOfflineCallback();
     try {
       if (password != null) {
@@ -59,44 +55,39 @@ export class QQService implements IQQService {
         .login();
       await this.waitOnline();
       return Result.ok(1);
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error('failed to login qq', e);
-      return Result.err(e);
+      return Result.err(new Error(e));
     }
   }
 
-  async sendMessageToUser(userId: number, message: string): Promise<Result.Result<1, unknown>> {
+  async sendMessageToUser(userId: number, message: string): Promise<Result.T<1>> {
     if (!this.loggedIn) {
       const errorMsg = `try to post message ${message} to iser ${userId} when not logged in`;
       this.logger.error(errorMsg);
-      return Result.err('not logged in');
+      return Result.err(new Error('not logged in'));
     } else if (!this.client.fl.has(userId)) {
       this.logger.error(`no friend with id ${userId}`);
-      return Result.err(`no friend with id ${userId}`);
+      return Result.err(new Error(`no friend with id ${userId}`));
     }
     const user = this.client.pickFriend(userId, true);
     try {
       await user.sendMsg(message);
       return Result.ok(1);
-    } catch (e) {
-      this.logger.error(`failed to send message to admin ${userId}`);
-      this.logger.error(e);
-      return Result.err(e);
+    } catch (e: any) {
+      this.logger.error(`failed to send message to admin ${userId}`, e);
+      return Result.err(new Error(e));
     }
   }
 
-  async sendMessageToGroup(
-    groupId: number,
-    message: string,
-    image?: Buffer,
-  ): Promise<Result.Result<1, unknown>> {
+  async sendMessageToGroup(groupId: number, message: string, image?: Buffer): Promise<Result.T<1>> {
     if (!this.loggedIn) {
       const errorMsg = `try to post message ${message} to group ${groupId} when not logged in`;
       this.logger.error(errorMsg);
-      return Result.err(errorMsg);
+      return Result.err(new Error(errorMsg));
     } else if (!this.client.gl.has(groupId)) {
       this.logger.error(`no group with id ${groupId}`);
-      return Result.err(`no group with id ${groupId}`);
+      return Result.err(new Error(`no group with id ${groupId}`));
     }
     const group = this.client.pickGroup(groupId, true);
     try {
@@ -107,10 +98,9 @@ export class QQService implements IQQService {
         this.logger.info(`image sent to group ${groupId}`);
       }
       return Result.ok(1);
-    } catch (e) {
-      this.logger.error(`failed to send message to group ${groupId}`);
-      this.logger.error(e);
-      return Result.err(e);
+    } catch (e: any) {
+      this.logger.error(`failed to send message to group ${groupId}`, e);
+      return Result.err(new Error(e));
     }
   }
 }
