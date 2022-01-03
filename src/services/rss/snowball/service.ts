@@ -5,17 +5,17 @@ import { Message } from './message';
 
 export type FetchError = {
   kind: 'parse' | 'network';
-  message: string;
+  error: Error;
 };
 
 export interface ISnowballRssService {
-  fetch(uid: string): Promise<Result.Result<Message, FetchError>>;
+  fetch(uid: string): Promise<Result.T<Message, FetchError>>;
 }
 
 export class SnowballRssService implements ISnowballRssService {
   constructor(private readonly rssHubService: IRssHubService, private readonly logger: ILogger) {}
 
-  fetch(uid: string): Promise<Result.Result<Message, FetchError>> {
+  fetch(uid: string): Promise<Result.T<Message, FetchError>> {
     const url = `https://rsshub.app/xueqiu/user/${uid}`;
     this.logger.verbose(`start fetching from ${url}`);
     return new Promise((resolve) => {
@@ -28,7 +28,7 @@ export class SnowballRssService implements ISnowballRssService {
             return resolve(
               Result.err({
                 kind: 'parse',
-                message: messageResult.error,
+                error: messageResult.error,
               }),
             );
           }
@@ -38,7 +38,7 @@ export class SnowballRssService implements ISnowballRssService {
           this.logger.error('fetch failed', err);
           resolve(
             Result.err({
-              message: err.toString(),
+              error: err,
               kind: 'network',
             }),
           );

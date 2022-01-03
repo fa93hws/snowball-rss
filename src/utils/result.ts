@@ -1,15 +1,15 @@
 export namespace Result {
-  export type Ok<T> = {
+  export type Ok<V> = {
     isOk: true;
-    value: T;
+    value: V;
   };
-  export type Err<E = string> = {
+  export type Err<E = Error> = {
     isOk: false;
     error: E;
   };
-  export type Result<T, E = string> = Ok<T> | Err<E>;
+  export type T<V, E = Error> = Ok<V> | Err<E>;
 
-  export function ok<T>(value: T): Ok<T> {
+  export function ok<V>(value: V): Ok<V> {
     return {
       isOk: true,
       value,
@@ -23,7 +23,7 @@ export namespace Result {
     };
   }
 
-  export function unwrap<T>(result: Result<T, any>): T {
+  export function unwrap<V>(result: T<V, any>): V {
     if (result.isOk) {
       return result.value;
     }

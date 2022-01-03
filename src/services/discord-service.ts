@@ -4,13 +4,9 @@ import { Client as _Client } from 'discord.js';
 import type { ILogger } from './logging-service';
 
 export interface IDiscordService {
-  login: (token: string) => Promise<Result.Result<1, Error>>;
+  login: (token: string) => Promise<Result.T<1, Error>>;
   logout: () => void;
-  sendMessage(
-    channelId: string,
-    message: string,
-    files?: Buffer[],
-  ): Promise<Result.Result<1, Error>>;
+  sendMessage(channelId: string, message: string, files?: Buffer[]): Promise<Result.T<1, Error>>;
 }
 
 export class DiscordService {
@@ -25,7 +21,7 @@ export class DiscordService {
     this.logger = params.logger;
   }
 
-  async login(token: string): Promise<Result.Result<1, Error>> {
+  async login(token: string): Promise<Result.T<1, Error>> {
     return new Promise((resolve) => {
       this.client
         .login(token)
@@ -44,7 +40,7 @@ export class DiscordService {
     this.client.destroy();
   }
 
-  private getChannel(id: string): Promise<Result.Result<TextChannel, Error>> {
+  private getChannel(id: string): Promise<Result.T<TextChannel, Error>> {
     if (this.client.channels.cache.has(id)) {
       const maybeChannel = this.client.channels.cache.get(id);
       if (maybeChannel != null) {
@@ -82,7 +78,7 @@ export class DiscordService {
     channelId: string,
     message: string,
     files: Buffer[] = [],
-  ): Promise<Result.Result<1, Error>> {
+  ): Promise<Result.T<1, Error>> {
     const channelResult = await this.getChannel(channelId);
     if (!channelResult.isOk) {
       return channelResult;

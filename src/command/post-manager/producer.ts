@@ -97,7 +97,9 @@ export class PostProducer implements IPostProducer {
     const fetchResult = await this.snowballRssService.fetch(snowballUser);
     if (!fetchResult.isOk) {
       if (fetchResult.error.kind === 'parse') {
-        return this.exitHelper.onUnexpectedExit(`parsing error: ${fetchResult.error.message}`);
+        return this.exitHelper.onUnexpectedExit(
+          `parsing error: ${fetchResult.error.error.message}`,
+        );
       } else {
         this.logger.error('fetch error:', fetchResult.error);
         return [];
