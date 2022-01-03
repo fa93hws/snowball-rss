@@ -18,11 +18,6 @@ import { createWatermarkHandler } from './watermark';
 import { readVarsFromEnvs } from './read-env';
 
 type CliArgs = {
-  id: number;
-  groupId: number;
-  adminId: number;
-  password?: string;
-  snowballUserId: string;
   intervalSecond: number;
 
   doNotRun: boolean;
@@ -47,25 +42,25 @@ async function handler(args: CliArgs) {
   await discordService.login(envs.discordBotToken);
   const exitHelper = new ExitHelper({
     discordService,
-    account: args.id,
+    account: envs.qqBotAccount,
     discordChannelId: envs.discordChannelId,
   });
-  const qqService = new QQService({ account: args.id, logger, exitHelper });
-  await qqService.login(args.password);
-  await qqService.sendMessageToUser(args.adminId, `群聊机器人已启动, 当前版本: ${version}`);
-  await discordService.sendMessage(envs.discordChannelId, `服务上线, QQ账号: ${args.id}`);
-  const consumerHandler = createHandler(qqService, args.groupId, logger);
+  const qqService = new QQService({ account: envs.qqBotAccount, logger, exitHelper });
+  await qqService.login(envs.qqBotPassword);
+  await qqService.sendMessageToUser(envs.qqAdminAccount, `群聊机器人已启动, 当前版本: ${version}`);
+  await discordService.sendMessage(envs.discordChannelId, `服务上线, QQ账号: ${envs.qqBotAccount}`);
+  const consumerHandler = createHandler(qqService, envs.qqGroupId, logger);
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
     logger,
     exitHelper,
-    addWatermark: createWatermarkHandler(args.groupId),
+    addWatermark: createWatermarkHandler(envs.qqGroupId),
   });
 
   const postQueue: PostWithScreenshot[] = [];
   startProducer({
     intervalSecond: args.intervalSecond,
-    snowballUserId: args.snowballUserId,
+    snowballUserId: envs.snowballUserId,
     postQueue,
     services: {
       logger,
@@ -89,38 +84,14 @@ async function handler(args: CliArgs) {
 }
 
 export const qqCommand: CommandModule<{}, CliArgs> = {
-  command: 'by-qq',
+  command: '$0',
   describe: 'schedule fetching from snowball rss and notifiy subscribers in qq qun',
   builder: (yargs) =>
     yargs
-      .option('id', {
-        type: 'number',
-        describe: 'bot qq id',
-        demandOption: true,
-      })
-      .option('password', {
-        type: 'string',
-        describe: 'passowrd for bot qq, if not specified, will login using qr code',
-      })
-      .option('groupId', {
-        type: 'number',
-        describe: 'qq qun id to send notification',
-        demandOption: true,
-      })
-      .option('adminId', {
-        type: 'number',
-        describe: 'admin qq account to send test message or status update',
-        demandOption: true,
-      })
       .option('intervalSecond', {
         type: 'number',
         describe: 'how often fetching is happened, in second',
         default: 60,
-      })
-      .option('snowballUserId', {
-        type: 'string',
-        describe: 'snowball user id',
-        demandOption: true,
       })
       .option('useFakeLogger', {
         type: 'boolean',
