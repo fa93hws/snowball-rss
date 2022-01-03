@@ -49,7 +49,13 @@ async function handler(args: CliArgs) {
   await qqService.login(envs.qqBotPassword);
   await qqService.sendMessageToUser(envs.qqAdminAccount, `群聊机器人已启动, 当前版本: ${version}`);
   await discordService.sendMessage(envs.discordChannelId, `服务上线, QQ账号: ${envs.qqBotAccount}`);
-  const consumerHandler = createHandler(qqService, envs.qqGroupId, logger);
+  const consumerHandler = createHandler({
+    sendQQMessage: (msg: string, file: Buffer) =>
+      qqService.sendMessageToGroup(envs.qqGroupId, msg, file),
+    sendDiscordMessage: (msg: string, file: Buffer) =>
+      discordService.sendMessage(envs.discordChannelId, msg, [file]),
+    logger,
+  });
   const postConsumer = new PostConsumer(logger, consumerHandler);
   const screenshotService = new ScreenShotService({
     logger,

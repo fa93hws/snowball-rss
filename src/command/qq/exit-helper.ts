@@ -22,12 +22,14 @@ export class ExitHelper implements IExitHelper {
       EOL,
     );
     await this.discordService.sendMessage(this.discordChannelId, message);
+    this.discordService.logout();
     process.exit(1);
   }
 
   async onExpectedExit(reason: string): Promise<never> {
     const message = ['服务下线(expected)', `QQ账号: ${this.account}`, `原因: ${reason}`].join(EOL);
     await this.discordService.sendMessage(this.discordChannelId, message);
+    this.discordService.logout();
     process.exit(1);
   }
 }

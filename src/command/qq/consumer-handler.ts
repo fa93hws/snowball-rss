@@ -1,4 +1,3 @@
-import type { IQQService } from '@services/qq-service';
 import type { Post } from '@services/rss/snowball/message';
 import { Result } from '@utils/result';
 import type { ILogger } from '@services/logging-service';
@@ -25,7 +24,17 @@ function extractLinks(content: string, logger: ILogger): Result.T<[string, strin
   return Result.ok(links);
 }
 
-export function createHandler(qqService: IQQService, groupId: number, logger: ILogger) {
+type SendMessage = (message: string, file: Buffer) => Promise<Result.T<1>>;
+
+export function createHandler({
+  sendQQMessage,
+  sendDiscordMessage,
+  logger,
+}: {
+  sendQQMessage: SendMessage;
+  sendDiscordMessage: SendMessage;
+  logger: ILogger;
+}) {
   return async (post: Post, screenShot: Buffer): Promise<Result.T<1>> => {
     // extract links in the content, otherwise noboday know whatTinks are based
     // on screenshot
@@ -45,6 +54,12 @@ export function createHandler(qqService: IQQService, groupId: number, logger: IL
         }
       }
     }
-    return qqService.sendMessageToGroup(groupId, message.join(EOL), screenShot);
+    // discord is a backup because qq may not be stable. It's ok for the backup to fail.
+    // They are unlikely to fail together.
+    await sendDiscordMessage(
+      [`**${post.title}**`, post.content, `author: ${post.author}`, `link: ${post.link}`].join(EOL),
+      screenShot,
+    );
+    return sendQQMessage(message.join(EOL), screenShot);
   };
 }
