@@ -26,14 +26,10 @@ export class QQService implements IQQService {
     this.exitHelper = params.exitHelper;
   }
 
-  private async maybeStopOnLoggedout(error: unknown) {
-    if (error == null || typeof error !== 'object') {
-      return;
-    }
-    if ((error as any)['code'] === -1) {
-      this.logger.error('account is logged out');
-      await this.exitHelper.onUnexpectedExit('account is logged out');
-    }
+  private async addOfflineCallback() {
+    this.client.on('system.offline', () => {
+      this.exitHelper.onUnexpectedExit('qq offline');
+    });
   }
 
   private waitOnline(): Promise<void> {
@@ -46,6 +42,7 @@ export class QQService implements IQQService {
   }
 
   async login(password?: string): Promise<Result.Result<1, unknown>> {
+    this.addOfflineCallback();
     try {
       if (password != null) {
         await this.client.login(password);
@@ -84,7 +81,6 @@ export class QQService implements IQQService {
     } catch (e) {
       this.logger.error(`failed to send message to admin ${userId}`);
       this.logger.error(e);
-      await this.maybeStopOnLoggedout(e);
       return Result.err(e);
     }
   }
@@ -114,7 +110,6 @@ export class QQService implements IQQService {
     } catch (e) {
       this.logger.error(`failed to send message to group ${groupId}`);
       this.logger.error(e);
-      await this.maybeStopOnLoggedout(e);
       return Result.err(e);
     }
   }
