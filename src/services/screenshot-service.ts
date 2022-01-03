@@ -67,8 +67,7 @@ export class ScreenShotService implements IScreenShotService {
       return Result.ok(buffer);
     } catch (e) {
       await browser.close();
-      this.logger.error(`failed to take snapshot for ${url}, error is`);
-      this.logger.error(e);
+      this.logger.error(`failed to take snapshot for ${url}, error is`, e);
       return Result.err(e);
     }
   }

@@ -60,7 +60,7 @@ export class QQService implements IQQService {
       await this.waitOnline();
       return Result.ok(1);
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error('failed to login qq', e);
       return Result.err(e);
     }
   }

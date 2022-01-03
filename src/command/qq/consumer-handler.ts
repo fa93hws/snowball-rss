@@ -18,8 +18,7 @@ function extractLinks(content: string, logger: ILogger): Result.Result<[string, 
   for (const ele of eles) {
     const link = ele.getAttribute('href');
     if (link == null) {
-      logger.warn(`skip node, no link is found, content: ${content}, ele: `);
-      logger.warn(ele);
+      logger.warn(`skip node, no link is found, content: ${content}, ele: `, ele);
     }
     links.push([ele.innerText, link ?? '空']);
   }
@@ -37,7 +36,7 @@ export function createHandler(qqService: IQQService, groupId: number, logger: IL
     if (!linksResult.isOk) {
       message.push(linksResult.error);
     } else {
-      logger.info(`find links: ${JSON.stringify(linksResult)}`);
+      logger.info(`find links: `, linksResult.value);
       const links = linksResult.value;
       if (links.length > 0) {
         message.push('监测到原文中有链接，依次为');
