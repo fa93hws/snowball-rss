@@ -1,6 +1,6 @@
 {
   "name": "snowball-rss",
-  "version": "3.3.2",
+  "version": "4.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,9 +19,7 @@
     "rsshub": "^1.0.0-master.b5be05b"
   },
   "devDependencies": {
-    "@slack/web-api": "^6.5.1",
     "@types/jest": "^27.0.3",
-    "@types/nodemailer": "^6.4.4",
     "@types/sanitize-html": "^2.6.0",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
@@ -34,7 +32,6 @@
     "jest": "^27.4.5",
     "jimp": "^0.16.1",
     "node-html-parser": "^5.2.0",
-    "nodemailer": "^6.7.2",
     "prettier": "^2.5.1",
     "sanitize-html": "^2.6.1",
     "ts-jest": "^27.1.2",
@@ -42,7 +39,6 @@
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4",
     "winston": "^3.3.3",
-    "yarg": "^1.0.8",
     "yargs": "^17.3.0"
   }
 }
