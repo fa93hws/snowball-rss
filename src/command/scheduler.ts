@@ -59,9 +59,9 @@ export class Scheduler implements IScheduler {
           resolve(workResult);
         } catch (e) {
           this.logger.error(
-            `scheduler '${this.name}' have to stop due to error in scheduled work, error is:`,
+            `scheduler '${this.name}' have to stop due to error in scheduled work`,
+            e,
           );
-          this.logger.error(e);
           this.onStop && this.onStop('failed');
           resolve({ shouldContinue: false });
         } finally {

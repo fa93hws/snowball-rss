@@ -99,23 +99,21 @@ export class PostProducer implements IPostProducer {
       if (fetchResult.error.kind === 'parse') {
         return this.exitHelper.onUnexpectedExit(`parsing error: ${fetchResult.error.message}`);
       } else {
-        this.logger.error(`fetch error: ${fetchResult.error.message}`);
+        this.logger.error('fetch error:', fetchResult.error);
         return [];
       }
     }
     const message = fetchResult.value;
-    this.logger.info(
-      `fetch success, got messages for user ${snowballUser}, they are ${JSON.stringify({
-        time: message.updateTime,
-        posts: message.posts.map((p) => p.title.substring(0, 30)),
-      })}`,
-    );
+    this.logger.info(`fetch success, got messages for user ${snowballUser}`, {
+      time: message.updateTime,
+      posts: message.posts.map((p) => p.title.substring(0, 30)),
+    });
 
     const newPosts = this.findNewPosts(message.posts);
     for (const newPost of newPosts) {
       this.oldPostLinks.set(newPost.link, newPost.publishedTime);
       if (!options.isFirstRun) {
-        this.logger.info(`found new post, push to queue, post is ${JSON.stringify(newPost)}`);
+        this.logger.info('found new post, push to queue, post is', newPost);
       }
     }
     this.maybeRemoveSomeOldPostLinks();

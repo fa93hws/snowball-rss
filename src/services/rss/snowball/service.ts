@@ -24,7 +24,7 @@ export class SnowballRssService implements ISnowballRssService {
         .then((rawMessage) => {
           const messageResult = Message.fromRaw(rawMessage);
           if (!messageResult.isOk) {
-            this.logger.error(`parsing error: ${messageResult.error}`);
+            this.logger.error('parsing error: ', messageResult.error);
             return resolve(
               Result.err({
                 kind: 'parse',
@@ -35,8 +35,7 @@ export class SnowballRssService implements ISnowballRssService {
           return resolve(Result.ok(messageResult.value));
         })
         .catch((err) => {
-          this.logger.error('fetch failed, error is');
-          this.logger.error(err);
+          this.logger.error('fetch failed', err);
           resolve(
             Result.err({
               message: err.toString(),
