@@ -5,11 +5,11 @@ export interface ILogger {
   logFileDirname: string;
   logFileName: string;
 
-  info(message: any): void;
-  error(message: any): void;
-  warn(message: any): void;
-  verbose(message: any): void;
-  debug(message: any): void;
+  info(message: any, ...meta: any[]): void;
+  error(message: any, ...meta: any[]): void;
+  warn(message: any, ...meta: any[]): void;
+  verbose(message: any, ...meta: any[]): void;
+  debug(message: any, ...meta: any[]): void;
 }
 
 export class Logger implements ILogger {
@@ -63,19 +63,19 @@ export class Logger implements ILogger {
     });
   }
 
-  info(message: any) {
-    this.logger.info(message);
+  info(message: any, ...meta: any[]) {
+    this.logger.info(message, ...meta);
   }
-  error(message: any) {
-    this.logger.error(message);
+  error(message: any, ...meta: any[]) {
+    this.logger.error(message, ...meta);
   }
-  warn(message: any) {
-    this.logger.warn(message);
+  warn(message: any, ...meta: any[]) {
+    this.logger.warn(message, ...meta);
   }
-  verbose(message: any) {
-    this.logger.verbose(message);
+  verbose(message: any, ...meta: any[]) {
+    this.logger.verbose(message, ...meta);
   }
-  debug(message: any) {
-    this.logger.debug(message);
+  debug(message: any, ...meta: any[]) {
+    this.logger.debug(message, ...meta);
   }
 }

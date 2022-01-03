@@ -1,14 +1,21 @@
 type EnvVars = {
-  qmsgToken: string;
+  discordBotToken: string;
+  discordChannelId: string;
 };
 
 export function readVarsFromEnvs(env = process.env): EnvVars {
-  const qmsgToken = env.QMSG_TOKEN;
-  if (qmsgToken == null) {
-    throw new Error('qmsgToken must be set via QMSG_TOKEN environment variable');
+  const discordBotToken = env.DISCORD_BOT_TOKEN;
+  if (discordBotToken == null) {
+    throw new Error('discordBotToken must be set via DISCORD_BOT_TOKEN environment variable');
+  }
+
+  const discordChannelId = env.DISCORD_CHANNEL_ID;
+  if (discordChannelId == null) {
+    throw new Error('discordChannelId must be set via DISCORD_CHANNEL_ID environment variable');
   }
 
   return {
-    qmsgToken,
+    discordBotToken,
+    discordChannelId,
   };
 }
