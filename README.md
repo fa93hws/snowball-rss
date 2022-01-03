@@ -5,3 +5,4 @@
 [![discord](https://img.shields.io/static/v1?label=chat&message=on%20discord&color=7289da&logo=discord)](https://discord.gg/FFjGgjgj3X)
 
 QQ 运行良好，删除了 email 和 slack 模块。README 有心情了再更新。
+需要帮助可以直接来 [![discord](https://img.shields.io/static/v1?label=chat&message=on%20discord&color=7289da&logo=discord)](https://discord.gg/FFjGgjgj3X) 找我
